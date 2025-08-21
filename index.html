@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loadstring Obfuscator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #000000;
+            color: #ffffff;
+            font-family: 'Courier New', monospace;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            color: #ffffff;
+        }
+
+        .input-section, .output-section {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #cccccc;
+        }
+
+        textarea {
+            width: 100%;
+            height: 250px;
+            background-color: #111111;
+            color: #ffffff;
+            border: 2px solid #333333;
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            outline: none;
+        }
+
+        #output {
+            height: 180px;
+        }
+
+        textarea:focus {
+            border-color: #555555;
+        }
+
+        #output {
+            background-color: #0a0a0a;
+            border-color: #444444;
+            height: 180px;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        button {
+            background-color: #222222;
+            color: #ffffff;
+            border: 2px solid #444444;
+            border-radius: 8px;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-family: 'Courier New', monospace;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #333333;
+            border-color: #666666;
+        }
+
+        button:active {
+            background-color: #111111;
+        }
+
+        .status {
+            text-align: center;
+            margin: 20px 0;
+            color: #888888;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Loadstring Obfuscator</h1>
+        
+        <div class="input-section">
+            <label for="input">Put Your Lua Script Here - ANY Roblox Code Supported!</label>
+            <textarea id="input" placeholder='-- Example: ESP Script
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+
+-- Or any other Lua code:
+-- GUI creation, teleport, speed hack, etc.
+-- No longer restricted to just loadstring!'></textarea>
+        </div>
+
+        <div style="margin: 20px 0; padding: 15px; background-color: #111111; border: 1px solid #333333; border-radius: 8px;">
+            <h3 style="color: #cccccc; margin-bottom: 15px; font-size: 1.1em;">Obfuscation Settings</h3>
+            <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 8px; color: #aaaaaa; font-size: 14px; margin-bottom: 0;">
+                    <input type="checkbox" id="smartLength" checked style="width: 16px; height: 16px;">
+                    Smart Length - Result size matches input length
+                </label>
+                <label style="display: flex; align-items: center; gap: 8px; color: #aaaaaa; font-size: 14px; margin-bottom: 0;">
+                    <input type="checkbox" id="shortCodeLongResult" style="width: 16px; height: 16px;">
+                    Short Code Mode - Short input creates long result
+                </label>
+            </div>
+        </div>
+
+        <div class="button-container">
+            <button onclick="obfuscateCode()">Obfuscate</button>
+            <button onclick="clearAll()">Clear</button>
+            <button onclick="copyResults()">Copy Results</button>
+            <button onclick="downloadResults()">Download Results</button>
+        </div>
+
+        <div class="status" id="status">Ready - Now supports ANY Lua code!</div>
+
+        <div class="output-section">
+            <label for="output">Results here</label>
+            <textarea id="output" readonly placeholder="-- Obfuscated code will appear here"></textarea>
+        </div>
+
+        <div style="margin-top: 30px; padding: 20px; background-color: #111111; border: 2px solid #333333; border-radius: 8px; text-align: center;">
+            <p style="color: #cccccc; font-size: 16px; margin-bottom: 15px; font-weight: bold;">Other Obfuscator Versions Available:</p>
+            
+            <p style="color: #00ff88; font-size: 14px; margin-bottom: 10px;">
+                <strong>You can Use V1 Obfuscate Version!</strong><br>
+                <a href="https://gamandax.github.io/Loadsrting-Obfuscator" target="_blank" style="color: #ffffff; text-decoration: underline;">https://gamandax.github.io/Loadsrting-Obfuscator</a>
+            </p>
+            
+            <p style="color: #ff6b6b; font-size: 14px; margin-bottom: 0;">
+                <strong>You can Use V2 Binary Obfuscator Version!</strong><br>
+                <a href="https://gamandax.github.io/Binary-Obfuscator-btm" target="_blank" style="color: #ffffff; text-decoration: underline;">https://gamandax.github.io/Binary-Obfuscator-btm</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        function v1(v2) {
+            const v3 = [];
+            const v4 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_IllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCH_____IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
+            
+            for (let v5 = 1; v5 <= v2; v5++) {
+                const v6 = Math.floor(Math.random() * 16) + 5; // 5-20
+                let v7 = "";
+                for (let v8 = 1; v8 <= v6; v8++) {
+                    const v9 = Math.floor(Math.random() * v4.length);
+                    v7 += v4.charAt(v9);
+                }
+                v3.push(v7);
+            }
+            return v3.join("");
+        }
+
+        function obfuscateCode() {
+            const input = document.getElementById('input').value;
+            const output = document.getElementById('output');
+            const status = document.getElementById('status');
+
+            if (!input.trim()) {
+                status.textContent = "Please enter Lua code to obfuscate";
+                return;
+            }
+
+            status.textContent = "Obfuscating your Lua code...";
+
+            setTimeout(() => {
+                const header = `--[[ █████╗ ██╗  ██╗██╗   ██╗███████╗     ██████╗ ██████╗ ███████╗██╗   ██╗███████╗ ██████╗ █████╗ ████████╗ ██████╗ ██████╗ 
+██╔══██╗╚██╗██╔╝██║   ██║██╔════╝    ██╔═══██╗██╔══██╗██╔════╝██║   ██║██╔════╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗
+███████║ ╚███╔╝ ██║   ██║███████╗    ██║   ██║██████╔╝█████╗  ██║   ██║███████╗██║     ███████║   ██║   ██║   ██║██████╔╝
+██╔══██║ ██╔██╗ ██║   ██║╚════██║    ██║   ██║██╔══██╗██╔══╝  ██║   ██║╚════██║██║     ██╔══██║   ██║   ██║   ██║██╔══██╗
+██║  ██║██╔╝ ██╗╚██████╔╝███████║    ╚██████╔╝██████╔╝██║     ╚██████╔╝███████║╚██████╗██║  ██║   ██║   ╚██████╔╝██║  ██║
+╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝     ╚═════╝ ╚═════╝ ╚═╝      ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝ ]]\n\n`;
+                
+                let obfuscated = "";
+                let vars = [];
+
+                for (let i = 0; i < input.length; i++) {
+                    const byte = input.charCodeAt(i);
+                    const varName = v1(Math.floor(Math.random() * 45) + 5);
+                    obfuscated += `local ${varName}='${byte}';`;
+                    vars.push(varName);
+                }
+
+                const final = header + obfuscated + `loadstring(string.char(${vars.join(',')}))()`;
+                
+                output.value = final;
+                status.textContent = "Obfuscation complete! Any Lua code supported.";
+            }, 100);
+        }
+
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('output').value = '';
+            document.getElementById('status').textContent = 'Ready - Now supports ANY Lua code!';
+        }
+
+        function copyResults() {
+            const output = document.getElementById('output');
+            const status = document.getElementById('status');
+            
+            if (!output.value.trim()) {
+                status.textContent = "No results to copy";
+                return;
+            }
+
+            output.select();
+            output.setSelectionRange(0, 99999);
+            
+            try {
+                document.execCommand('copy');
+                status.textContent = "Results copied to clipboard!";
+                setTimeout(() => {
+                    status.textContent = "Ready - Now supports ANY Lua code!";
+                }, 2000);
+            } catch (err) {
+                status.textContent = "Failed to copy - please select and copy manually";
+            }
+        }
+
+        function downloadResults() {
+            const output = document.getElementById('output');
+            const status = document.getElementById('status');
+            
+            if (!output.value.trim()) {
+                status.textContent = "No results to download";
+                return;
+            }
+
+            try {
+                // Create blob with the obfuscated code
+                const blob = new Blob([output.value], { type: 'text/plain' });
+                
+                // Create download link
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                
+                // Generate filename with timestamp
+                const now = new Date();
+                const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                a.download = `obfuscated-script-${timestamp}.lua`;
+                
+                // Trigger download
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                // Clean up
+                window.URL.revokeObjectURL(url);
+                
+                status.textContent = "File downloaded successfully!";
+                setTimeout(() => {
+                    status.textContent = "Ready - Now supports ANY Lua code!";
+                }, 2000);
+            } catch (err) {
+                status.textContent = "Failed to download file";
+                console.error('Download error:', err);
+            }
+        }
+    </script>
+</body>
+</html>
