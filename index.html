@@ -101,7 +101,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Aux Obfuscator</h1>
+        <h1>AUX Obfuscator</h1>
         
         <textarea id="input" placeholder='Put Your loadstring(game:HttpGet("https://raw_Example_script_to_obfuscate"))()'></textarea>
         
@@ -139,36 +139,63 @@
                 return;
             }
 
-            // Create extremely long obfuscation
-            const header = `--[[ OBFUSCATED FILE WITH AUX OBFUSCATOR ]]\n`;
+    
+            const header = `--[[ 
+            ███████╗██╗   ██╗██████╗ ███████╗██████╗     ██████╗ ██████╗ ███████╗██╗   ██╗███████╗ ██████╗ █████╗ ████████╗ ██████╗ ██████╗ 
+            ██╔════╝██║   ██║██╔══██╗██╔════╝██╔══██╗   ██╔═══██╗██╔══██╗██╔════╝██║   ██║██╔════╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗
+            ███████╗██║   ██║██████╔╝█████╗  ██████╔╝   ██║   ██║██████╔╝█████╗  ██║   ██║███████╗██║     ███████║   ██║   ██║   ██║██████╔╝
+            ╚════██║██║   ██║██╔═══╝ ██╔══╝  ██╔══██╗   ██║   ██║██╔══██╗██╔══╝  ██║   ██║╚════██║██║     ██╔══██║   ██║   ██║   ██║██╔══██╗
+            ███████║╚██████╔╝██║     ███████╗██║  ██║   ╚██████╔╝██████╔╝██║     ╚██████╔╝███████║╚██████╗██║  ██║   ██║   ╚██████╔╝██║  ██║
+            ╚══════╝ ╚═════╝ ╚═╝     ╚══════╝╚═╝  ╚═╝    ╚═════╝ ╚═════╝ ╚═╝      ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝
+            
+            OBFUSCATED  FILE WITH  AUX OBFUSCATOR - LOL
+            ]]\n\n`;
             
             let obfuscatedCode = "";
             let variableList = [];
             
-            // Generate massive variable names and convert each character
+            
+            obfuscatedCode += generateMassiveJunk();
+            
+            
             for (let i = 0; i < input.length; i++) {
                 const charCode = input.charCodeAt(i);
-                const varName = generateRandomVar(Math.floor(Math.random() * 80) + 50); // 50-130 char variables
+                const varName = generateRandomVar(Math.floor(Math.random() * 300) + 200); // 200-500 char variables!
                 
-                // Add extra obfuscation layers
+             
                 obfuscatedCode += `local ${varName}=${charCode};`;
                 
-                // Add random junk variables between real ones
-                for (let j = 0; j < Math.floor(Math.random() * 5) + 2; j++) {
-                    const junkVar = generateRandomVar(Math.floor(Math.random() * 60) + 40);
+              
+                for (let j = 0; j < Math.floor(Math.random() * 30) + 20; j++) {
+                    const junkVar = generateRandomVar(Math.floor(Math.random() * 250) + 150); // 150-400 chars
                     const junkValue = Math.floor(Math.random() * 255);
                     obfuscatedCode += `local ${junkVar}=${junkValue};`;
+                    
+                    
+                    if (Math.random() > 0.7) {
+                        const funcName = generateRandomVar(Math.floor(Math.random() * 100) + 50);
+                        obfuscatedCode += `local function ${funcName}() return ${Math.floor(Math.random() * 1000)} end;`;
+                    }
+                }
+                
+                
+                if (i % 5 === 0) {
+                    obfuscatedCode += generateMassiveJunk();
                 }
                 
                 variableList.push(varName);
             }
             
-            // Add final loadstring call
+        
+            obfuscatedCode += generateMassiveJunk();
+            
             obfuscatedCode += `loadstring(string.char(${variableList.join(',')}))()`;
+            
+
+            obfuscatedCode += generateMassiveJunk();
             
             obfuscatedContent = header + obfuscatedCode;
             
-            // Show download section
             document.getElementById('downloadSection').classList.add('show');
         }
 
