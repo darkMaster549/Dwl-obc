@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aux Obfuscator - Fixed</title>
+    <title>Aux Obfuscator</title>
     <style>
         * {
             margin: 0;
@@ -12,219 +12,299 @@
         }
 
         body {
-            background-color: #1a1a1a;
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
             color: #ffffff;
-            font-family: Arial, sans-serif;
             min-height: 100vh;
-            padding: 40px 20px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
         }
 
         .container {
-            max-width: 600px;
-            width: 100%;
+            background: rgba(25, 25, 25, 0.9);
+            border: 2px solid #333;
+            border-radius: 10px;
+            padding: 40px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
             text-align: center;
+            max-width: 500px;
+            width: 90%;
         }
 
-        h1 {
-            font-size: 2em;
+        .title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #00ff7f, #00bfff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: bold;
+        }
+
+        .subtitle {
+            color: #888;
             margin-bottom: 30px;
-            color: #ffffff;
+            font-size: 1.1em;
         }
 
-        textarea {
-            width: 100%;
-            height: 150px;
-            background-color: #2d2d2d;
-            color: #ffffff;
-            border: 1px solid #555;
+        .file-input-wrapper {
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #333;
+            border: 2px dashed #666;
             border-radius: 8px;
-            padding: 15px;
-            font-family: monospace;
-            font-size: 14px;
-            resize: vertical;
-            outline: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1em;
+        }
+
+        .file-input-label:hover {
+            background: #444;
+            border-color: #00ff7f;
+            color: #00ff7f;
+        }
+
+        .file-selected {
+            color: #00ff7f;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .filename-input-wrapper {
             margin-bottom: 20px;
         }
 
-        textarea:focus {
-            border-color: #777;
+        .filename-input {
+            width: 100%;
+            padding: 12px;
+            background: #333;
+            border: 2px solid #555;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 1em;
+            font-family: 'Courier New', monospace;
+            transition: border-color 0.3s ease;
+        }
+
+        .filename-input:focus {
+            outline: none;
+            border-color: #00ff7f;
+        }
+
+        .filename-input::placeholder {
+            color: #888;
+        }
+
+        .filename-hint {
+            color: #888;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
 
         .obfuscate-btn {
-            background-color: #007acc;
-            color: white;
+            background: linear-gradient(45deg, #00ff7f, #00bfff);
             border: none;
-            border-radius: 6px;
-            padding: 12px 30px;
-            font-size: 16px;
+            padding: 15px 40px;
+            border-radius: 8px;
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #000;
             cursor: pointer;
-            margin-bottom: 20px;
+            transition: transform 0.2s ease;
+            font-family: 'Courier New', monospace;
         }
 
         .obfuscate-btn:hover {
-            background-color: #005a99;
+            transform: scale(1.05);
         }
 
-        .download-section {
+        .obfuscate-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .processing {
             display: none;
             margin-top: 20px;
+            color: #00ff7f;
         }
 
-        .download-section.show {
-            display: block;
+        .spinner {
+            border: 3px solid #333;
+            border-top: 3px solid #00ff7f;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            display: inline-block;
+            margin-right: 10px;
         }
 
-        .download-text {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #4CAF50;
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
-        .download-btn {
-            background-color: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 10px 25px;
-            font-size: 14px;
-            cursor: pointer;
-        }
-
-        .download-btn:hover {
-            background-color: #45a049;
-        }
-
-        .file-size-info {
-            margin-top: 15px;
-            color: #aaa;
-            font-size: 14px;
+        .ascii-art {
+            font-size: 0.6em;
+            color: #444;
+            margin-bottom: 20px;
+            white-space: pre;
+            line-height: 1;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Aux Obfuscator</h1>
+        <div class="ascii-art">███╗   ██╗██╗   ██╗██╗  ██╗
+████╗  ██║██║   ██║╚██╗██╔╝
+██╔██╗ ██║██║   ██║ ╚███╔╝ 
+██║╚██╗██║██║   ██║ ██╔██╗ 
+██║ ╚████║╚██████╔╝██╔╝ ██╗
+╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝</div>
         
-        <textarea id="input" placeholder='Put Your loadstring(game:HttpGet("https://raw_Example_script_to_obfuscate"))()'></textarea>
+        <h1 class="title">Aux Obfuscator</h1>
+        <p class="subtitle">Protect your code from skidders</p>
         
-        <br>
-        <button class="obfuscate-btn" onclick="obfuscateCode()">Obfuscate</button>
-
-        <div class="download-section" id="downloadSection">
-            <div class="download-text">Download Your Obfuscated File!</div>
-            <button class="download-btn" onclick="downloadFile()">Download</button>
-            <div class="file-size-info" id="fileSizeInfo"></div>
+        <div class="file-input-wrapper">
+            <input type="file" id="fileInput" class="file-input" accept=".lua,.txt">
+            <label for="fileInput" class="file-input-label">
+                📁 Choose File to Obfuscate
+            </label>
+            <div id="fileSelected" class="file-selected"></div>
+        </div>
+        
+        <div class="filename-input-wrapper">
+            <input type="text" id="filenameInput" class="filename-input" placeholder="Enter filename (e.g., JailBreak_Obfuscated_File)">
+            <div class="filename-hint">📝 Put any name you want to obfuscate</div>
+        </div>
+        
+        <button id="obfuscateBtn" class="obfuscate-btn" disabled>
+            🔒 Obfuscate!
+        </button>
+        
+        <div id="processing" class="processing">
+            <div class="spinner"></div>
+            Processing your code...
         </div>
     </div>
 
     <script>
-        let obfuscatedContent = '';
+        const fileInput = document.getElementById('fileInput');
+        const fileSelected = document.getElementById('fileSelected');
+        const filenameInput = document.getElementById('filenameInput');
+        const obfuscateBtn = document.getElementById('obfuscateBtn');
+        const processing = document.getElementById('processing');
+        
+        let selectedFile = null;
 
-        function generateRandomVar(length) {
-            const chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_IlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIlIl";
-            let result = "";
-            for (let i = 0; i < length; i++) {
-                result += chars.charAt(Math.floor(Math.random() * chars.length));
+        fileInput.addEventListener('change', function(e) {
+            selectedFile = e.target.files[0];
+            if (selectedFile) {
+                fileSelected.textContent = `✅ Selected: ${selectedFile.name}`;
+                obfuscateBtn.disabled = false;
             }
-            return result;
-        }
+        });
 
-        function obfuscateCode() {
-            const input = document.getElementById('input').value;
+        // Your EXACT obfuscation function (converted from your Lua code)
+        function v1(v2) {
+            const v3 = [];
+            // Using your exact character string
+            const v4 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
             
-            if (!input.trim()) {
-                alert("Please enter a loadstring to obfuscate");
-                return;
-            }
-
-            if (!input.includes('loadstring') || !input.includes('game:HttpGet')) {
-                alert("Input must contain loadstring(game:HttpGet(...)) pattern");
-                return;
-            }
-
-            // Create obfuscation with your original method but limited to 400KB
-            const header = `--[[ OBFUSCATED FILE WITH AUX OBFUSCATOR ]]\n`;
-            
-            let obfuscatedCode = "";
-            let variableList = [];
-            
-            // Target maximum 400KB (400,000 bytes)
-            const maxSize = 400000;
-            let currentSize = header.length;
-            
-            // Generate variables for each character
-            for (let i = 0; i < input.length; i++) {
-                const charCode = input.charCodeAt(i);
-                const varName = generateRandomVar(Math.floor(Math.random() * 50) + 30); // 30-80 char variables (reduced from your original)
-                
-                obfuscatedCode += `local ${varName}=${charCode};`;
-                variableList.push(varName);
-                
-                // Calculate how much space we have left
-                const remainingSize = maxSize - (header.length + obfuscatedCode.length + 100); // 100 bytes buffer for final loadstring
-                const remainingChars = input.length - i - 1;
-                
-                if (remainingChars > 0) {
-                    // Calculate how many junk variables we can add per remaining character
-                    const avgCharSpace = remainingSize / remainingChars;
-                    const junkVarsPerChar = Math.max(1, Math.floor(avgCharSpace / 100)); // Each junk var ~100 bytes
-                    
-                    // Add junk variables (your original method but controlled)
-                    const junkAmount = Math.min(junkVarsPerChar, 50); // Max 50 junk vars per char
-                    for (let j = 0; j < junkAmount; j++) {
-                        const junkVar = generateRandomVar(Math.floor(Math.random() * 40) + 20);
-                        const junkValue = Math.floor(Math.random() * 255);
-                        const junkLine = `local ${junkVar}=${junkValue};`;
-                        
-                        // Check if adding this junk would exceed limit
-                        if (currentSize + junkLine.length < maxSize - 100) {
-                            obfuscatedCode += junkLine;
-                            currentSize += junkLine.length;
-                        } else {
-                            break; // Stop adding junk if we're close to limit
-                        }
-                    }
+            for (let v5 = 1; v5 <= v2; v5++) {
+                const v6 = Math.floor(Math.random() * 16) + 5; // 5-20 characters like your code
+                let v7 = "";
+                for (let v8 = 1; v8 <= v6; v8++) {
+                    const v9 = Math.floor(Math.random() * v4.length) + 1;
+                    v7 = v7 + v4.substring(v9 - 1, v9);
                 }
-                
-                currentSize = header.length + obfuscatedCode.length;
-                
-                // Break if we're approaching the limit
-                if (currentSize >= maxSize - 200) break;
+                v3.push(v7);
             }
-            
-            // Add final loadstring call (your original method)
-            obfuscatedCode += `loadstring(string.char(${variableList.join(',')}))()`;
-            
-            obfuscatedContent = header + obfuscatedCode;
-            
-            // Show file size info
-            const fileSizeKB = Math.round(obfuscatedContent.length / 1024);
-            document.getElementById('fileSizeInfo').textContent = `File Size: ${fileSizeKB}KB (Max: 400KB)`;
-            
-            // Show download section
-            document.getElementById('downloadSection').classList.add('show');
+            return v3.join("");
         }
 
-        function downloadFile() {
-            if (!obfuscatedContent) {
-                alert("No obfuscated content to download");
-                return;
+        function obfuscateCode(code) {
+            const header = "--[[ █████╗ ██╗  ██╗██╗   ██╗███████╗     ██████╗ ██████╗ ███████╗██╗   ██╗███████╗ ██████╗ █████╗ ████████╗ ██████╗ ██████╗ \n██╔══██╗╚██╗██╔╝██║   ██║██╔════╝    ██╔═══██╗██╔══██╗██╔════╝██║   ██║██╔════╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗\n███████║ ╚███╔╝ ██║   ██║███████╗    ██║   ██║██████╔╝█████╗  ██║   ██║███████╗██║     ███████║   ██║   ██║   ██║██████╔╝\n██╔══██║ ██╔██╗ ██║   ██║╚════██║    ██║   ██║██╔══██╗██╔══╝  ██║   ██║╚════██║██║     ██╔══██║   ██║   ██║   ██║██╔══██╗\n██║  ██║██╔╝ ██╗╚██████╔╝███████║    ╚██████╔╝██████╔╝██║     ╚██████╔╝███████║╚██████╗██║  ██║   ██║   ╚██████╔╝██║  ██║\n╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝     ╚═════╝ ╚═════╝ ╚═╝      ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝ ]]\n\n";
+
+            let obfuscated = "";
+            let vars = [];
+
+            // Using YOUR exact algorithm
+            for (let i = 0; i < code.length; i++) {
+                const byte = code.charCodeAt(i);
+                const varName = v1(Math.floor(Math.random() * 50) + 1); // Random 1-50 like your code
+                obfuscated = obfuscated + "local " + varName + "='" + byte + "';";
+                vars.push(varName);
             }
 
-            const blob = new Blob([obfuscatedContent], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
+            const final = header + obfuscated + "loadstring(string.char(" + vars.join(",") + "))()";
+            return final;
+        }
+
+        function downloadFile(content, filename) {
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = 'obfuscated_script.lua';
+            a.download = filename;
             document.body.appendChild(a);
             a.click();
-            window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
+            URL.revokeObjectURL(url);
         }
+
+        obfuscateBtn.addEventListener('click', function() {
+            if (!selectedFile) return;
+
+            obfuscateBtn.disabled = true;
+            processing.style.display = 'block';
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                setTimeout(() => { // Add small delay for visual effect
+                    const originalCode = e.target.result;
+                    const obfuscatedCode = obfuscateCode(originalCode);
+                    
+                    // Use custom filename or default
+                    let filename = filenameInput.value.trim();
+                    if (!filename) {
+                        const originalName = selectedFile.name;
+                        const nameWithoutExt = originalName.replace(/\.[^/.]+$/, "");
+                        filename = `${nameWithoutExt}_obfuscated`;
+                    }
+                    
+                    // Ensure .lua extension
+                    if (!filename.endsWith('.lua')) {
+                        filename += '.lua';
+                    }
+                    
+                    downloadFile(obfuscatedCode, filename);
+                    
+                    processing.style.display = 'none';
+                    obfuscateBtn.disabled = false;
+                    
+                    // Reset for next file
+                    fileInput.value = '';
+                    fileSelected.textContent = '';
+                    filenameInput.value = '';
+                    selectedFile = null;
+                    obfuscateBtn.disabled = true;
+                }, 1000);
+            };
+            reader.readAsText(selectedFile);
+        });
     </script>
 </body>
 </html>
