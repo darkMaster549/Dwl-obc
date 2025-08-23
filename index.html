@@ -3,250 +3,482 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aux Obfuscator</title>
+    <title>Roblox Script Obfuscator</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            background-color: #1a1a1a;
-            color: #ffffff;
             font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
             padding: 20px;
         }
-
+        
         .container {
             max-width: 800px;
             margin: 0 auto;
-            background-color: #2d2d2d;
-            padding: 30px;
-            border-radius: 8px;
+            background-color: white;
+            border: 2px solid #ccc;
+            padding: 20px;
         }
-
+        
         h1 {
             text-align: center;
-            margin-bottom: 30px;
-            color: #ffffff;
-        }
-
-        .input-group {
+            color: #333;
             margin-bottom: 20px;
         }
-
+        
+        .input-section {
+            margin-bottom: 20px;
+        }
+        
         label {
             display: block;
             margin-bottom: 5px;
-            color: #cccccc;
+            font-weight: bold;
+            color: #555;
         }
-
-        input[type="text"] {
-            width: 100%;
-            padding: 10px;
-            background-color: #404040;
-            border: 1px solid #555555;
-            color: #ffffff;
-            border-radius: 4px;
-        }
-
+        
         textarea {
             width: 100%;
-            height: 200px;
+            height: 300px;
             padding: 10px;
-            background-color: #404040;
-            border: 1px solid #555555;
-            color: #ffffff;
-            font-family: monospace;
-            border-radius: 4px;
+            border: 2px solid #ddd;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
             resize: vertical;
+            box-sizing: border-box;
         }
-
-        .button-container {
+        
+        .button-section {
             text-align: center;
             margin: 20px 0;
         }
-
+        
         button {
-            background-color: #007acc;
+            background-color: #4CAF50;
             color: white;
-            border: none;
-            padding: 12px 25px;
-            margin: 5px;
-            border-radius: 4px;
-            cursor: pointer;
+            padding: 15px 30px;
             font-size: 16px;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
         }
-
+        
         button:hover {
-            background-color: #005a99;
+            background-color: #45a049;
         }
-
+        
         button:disabled {
-            background-color: #555555;
+            background-color: #cccccc;
             cursor: not-allowed;
         }
-
-        .clear-btn {
-            background-color: #cc4444;
-        }
-
-        .clear-btn:hover {
-            background-color: #994444;
-        }
-
-        .download-btn {
-            background-color: #44cc44;
-        }
-
-        .download-btn:hover {
-            background-color: #339933;
-        }
-
+        
         .status {
             text-align: center;
-            margin: 15px 0;
-            color: #cccccc;
+            margin: 10px 0;
+            font-weight: bold;
         }
-
-        .status.success {
-            color: #44cc44;
+        
+        .success {
+            color: #4CAF50;
         }
-
-        .status.error {
-            color: #cc4444;
+        
+        .error {
+            color: #f44336;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Aux Obfuscator</h1>
+        <h1>Roblox Script Obfuscator</h1>
+        <p style="text-align: center; color: #666;">Put Your Whole Roblox Script for your Delta, KRNL, executors</p>
         
-        <div class="input-group">
-            <label for="filename">File Name:</label>
-            <input type="text" id="filename" placeholder="script" value="script">
+        <div class="input-section">
+            <label for="scriptInput">Enter your Roblox script:</label>
+            <textarea id="scriptInput" placeholder="-- Put your Roblox Lua script here
+print('Hello World!')
+game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></textarea>
         </div>
         
-        <div class="input-group">
-            <label for="input">Put your Lua code here:</label>
-            <textarea id="input" placeholder='loadstring(game:HttpGet("https://raw.githubusercontent.com/user/repo/script.lua"))()'></textarea>
+        <div class="button-section">
+            <button id="obfuscateBtn" onclick="obfuscateScript()">Obfuscate Script</button>
         </div>
-
-        <div class="button-container">
-            <button onclick="obfuscateCode()">Obfuscate!</button>
-            <button class="download-btn" id="downloadBtn" onclick="downloadFile()" disabled>Download</button>
-            <button class="clear-btn" onclick="clearAll()">Clear</button>
+        
+        <div id="status" class="status"></div>
+        
+        <div class="footer">
+            <p>This tool obfuscates Roblox Lua scripts using Caesar cipher encoding</p>
+            <p>The obfuscated file will be automatically downloaded</p>
         </div>
-
-        <div class="status" id="status">Ready</div>
     </div>
 
     <script>
-        let obfuscatedCode = '';
-
-        function v1(v2) {
-            const v3 = [];
-            const v4 = "////___><><><][][]]\abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_IllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCH_____IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
-            
-            for (let v5 = 1; v5 <= v2; v5++) {
-                const v6 = Math.floor(Math.random() * 16) + 5;
-                let v7 = "";
-                for (let v8 = 1; v8 <= v6; v8++) {
-                    const v9 = Math.floor(Math.random() * v4.length);
-                    v7 += v4.charAt(v9);
-                }
-                v3.push(v7);
+        function generateRandomName(len = null) {
+            len = len || Math.floor(Math.random() * 5) + 8;
+            const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+            let name = "";
+            for (let i = 0; i < len; i++) {
+                const index = Math.floor(Math.random() * charset.length);
+                name += charset[index];
             }
-            return v3.join("");
+            return name;
         }
 
-        function obfuscateCode() {
-            const input = document.getElementById('input').value;
-            const status = document.getElementById('status');
-            const downloadBtn = document.getElementById('downloadBtn');
+        function isValidChar(byte) {
+            return (byte >= 48 && byte <= 57) || (byte >= 65 && byte <= 90) || (byte >= 97 && byte <= 122);
+        }
 
-            if (!input.trim()) {
-                status.textContent = "Please enter code";
-                status.className = "status error";
-                return;
+        function caesarCipher(data, offset) {
+            let result = "";
+            for (let i = 0; i < data.length; i++) {
+                const byte = data.charCodeAt(i);
+                if (isValidChar(byte)) {
+                    let newByte;
+                    if (byte >= 48 && byte <= 57) {
+                        newByte = ((byte - 48 + offset) % 10) + 48;
+                    } else if (byte >= 65 && byte <= 90) {
+                        newByte = ((byte - 65 + offset) % 26) + 65;
+                    } else if (byte >= 97 && byte <= 122) {
+                        newByte = ((byte - 97 + offset) % 26) + 97;
+                    }
+                    result += String.fromCharCode(newByte);
+                } else {
+                    result += String.fromCharCode(byte);
+                }
+            }
+            return result;
+        }
+
+        // Variable Renamer functions
+        const varencNames = {};
+        const luaFunctions = [
+            "assert", "collectgarbage", "dofile", "loadfile", "loadstring",
+            "ipairs", "pairs", "tonumber", "tostring", "type", "print",
+            "_G", "_VERSION", "write", "sort",
+            "math.abs", "math.acos", "math.asin", "math.atan", "math.atan2",
+            "math.ceil", "math.cos", "math.cosh", "math.deg", "math.exp",
+            "math.floor", "math.fmod", "math.frexp", "math.ldexp", "math.log",
+            "math.log10", "math.max", "math.min", "math.modf", "math.pi",
+            "math.pow", "math.rad", "math.random", "math.randomseed", "math.sin",
+            "math.sinh", "math.sqrt", "math.tan", "math.tanh",
+            "string.byte", "string.char", "string.dump", "string.find",
+            "string.format", "string.gmatch", "string.gsub", "string.len",
+            "string.lower", "string.match", "string.rep", "string.reverse",
+            "string.sub", "string.upper",
+            "table.concat", "table.insert", "table.remove", "table.sort",
+            "table.pack", "table.unpack"
+        ];
+
+        const reservedWords = {
+            "if": true, "then": true, "else": true, "elseif": true, "end": true,
+            "for": true, "while": true, "do": true, "repeat": true, "until": true,
+            "function": true, "local": true, "return": true, "break": true, "continue": true,
+            "and": true, "or": true, "not": true, "in": true, "nil": true,
+            "true": true, "false": true
+        };
+
+        function replaceUnquoted(input, target, replacement) {
+            const placeholder = "!!!";
+            let protectedInput = input.replace(/(['"])((?:\\.|(?!\1)[^\\])*)\1/g, function(match, quote, content) {
+                content = content.replace(/\\"/g, '!@!').replace(/\\'/g, '@!@');
+                content = content.replace(new RegExp(target, 'g'), placeholder);
+                content = content.replace(/!@!/g, '\\"').replace(/@!@/g, "\\'");
+                return quote + content + quote;
+            });
+            
+            const regex = new RegExp('(\\b)' + target.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\b)', 'g');
+            let result = protectedInput.replace(regex, '$1' + replacement + '$2');
+            result = result.replace(new RegExp(placeholder, 'g'), target);
+            return result;
+        }
+
+        function obfuscateLocalVariables(code) {
+            const localVarPattern = /local\s+([a-zA-Z_][a-zA-Z0-9_,\s]*)\s*=/g;
+            const varMap = {};
+            let obfuscatedCode = code;
+            let match;
+
+            while ((match = localVarPattern.exec(code)) !== null) {
+                const localVars = match[1];
+                const vars = localVars.match(/[a-zA-Z_][a-zA-Z0-9_]*/g);
+                if (vars) {
+                    for (const varName of vars) {
+                        if (varName.length > 1 && !varencNames[varName] && !reservedWords[varName]) {
+                            varMap[varName] = generateRandomName();
+                        }
+                    }
+                }
             }
 
-            status.textContent = "Obfuscating...";
-            status.className = "status";
+            for (const [originalVar, obfuscatedVar] of Object.entries(varMap)) {
+                obfuscatedCode = replaceUnquoted(obfuscatedCode, originalVar, obfuscatedVar);
+            }
 
-            setTimeout(() => {
-                const header = `--[[This File Obfuscated Using Aux Obfuscator 
+            return { obfuscatedCode, varMap };
+        }
 
- return(function(...)local y={"\066\097\099\101\081\074\118\110";"\073\098\061\061";"\103\112\078\110\070\117\061\061";"\056\105\051\061";"\088\047\084\109\056\047\067\061","\074\067\078\077\074\065\052\116\082\120\084\089\099\084\052\073\081\098\061\061","\071\074\087\117\081\103\053\114\067\111\104\101\072\069\078\111\074\067\111\061";"\066\077\120\087\056\074\120\087\070\103\099\052\070\100\057\065","\088\074\118\117\070\074\072\089";"\088\047\078\080\088\086\079\053\056\100\066\061","\066\086\079\053\056\110\116\061";"\070\077\078\068\070\077\084\087","\066\047\072\052\056\047\117\061","\077\120\081\076\085\102\065\118\066\102\071\116\078\120\115\052\075\056\098\109\102\121\056\089\052\075\056\049\118\104\057\074\119\052\111\049\100\105\085\118\070\103\066\101\105\104\054\089\065\065\118\074\104\085\111\088\082\069\065\110\082\107\081\108\086\122\105\086\086\076\065\065","\070\110\065\087\082\116\061\061","\056\047\120\068";"\120\065\079\086\088\084\052\076\072\110\079\072\072\069\120\073","\120\047\084\048\066\047\120\101\051\111\099\065\088\047\120\107\088\047\120\069\051\116\061\061";"\082\097\072\112\070\098\061\061";"\082\103\079\101\056\097\051\061","\099\077\051\097\120\069\052\111\099\111\114\080\049\098\061\061","\103\112\078\048\082\103\099\052\088\047\084\109\056\047\067\061","\081\084\082\106\099\067\065\069\082\047\078\102","\066\100\084\068\082\047\078\048","\116\080\121\118\088\108\098\097\067\077\072\082\067\110\099\048\121\074\087\061";"\082\100\099\110\116\087\099\068\070\107\072\067\067\108\088\072\082\100\050\061";"","\066\100\120\048\056\097\082\065";"\082\100\057\055\056\097\051\061";"\056\074\084\087\081\119\061\061","\108\111\084\102\120\067\082\113\073\103\099\081\082\097\072\120\071\108\119\061";"\082\097\088\105\088\074\048\072\081\080\084\049\056\047\048\101\121\103\050\061","\082\108\084\074\067\107\052\077\066\084\065\111\072\077\057\087";"\121\087\117\087\088\100\072\087\066\111\118\121\082\087\078\099\070\116\061\061";"\103\112\078\053\056\100\099\065\071\119\061\061","\081\087\082\073\066\100\088\084\067\103\072\050";"\056\105\111\061";"\056\077\112\104\049\065\067\057\120\077\050\097\121\100\052\087\066\087\054\061","\070\077\052\052\066\098\061\061";"\049\069\078\108\099\120\072\103\082\097\099\048\067\077\066\112\082\110\121\061";"\082\077\112\052\088\047\072\050","\056\107\075\104\081\112\088\117\081\047\048\106\088\069\065\105\066\047\117\061","\088\047\078\068\088\074\112\109\082\103\051\061";"\073\109\098\065\082\106\050\053\073\098\061\061";"\103\112\078\114\082\074\104\061"}local function m(m)return y[m+(-729149+772938)]end for m,M in ipairs({{-985157-(-985158),936016-935971};{825476-825475,-182302+182310},{464786+-464777,252704+-252659}})do while M[-140152-(-140153)]<M[-837618-(-837620)]do y[M[-17963+17964]],y[M[865406+-865404]],M[447427-447426],M[915660-915658]=y[M[805266+-805264]],y[M[357693-357692]],M[158661-158660]+(-708364-(-708365)),M[456492+-456490]-(-62624-(-62625))end end do local m=table.insert local M=string.char local G=table.concat local b=y local J={A=945621+-945584,o=-710524+710528,m=974082+-974048;I=564379-564365;x=639827+-639806,Z=-400995-(-401054);E=595707-595671;D=465919+-465873,["\052"]=-796209+796242,g=65349+-65326,["\054"]=-213490+213550;B=822947-822919,["\051"]=-923512-(-923520),y=475613+-475601;Y=136094-136051;J=-238050-(-238072),L=182678-182667,H=980984+-980971;S=87644+-87634,t=-204568+204584;b=1001091+-1001059,p=-484669-(-484722);X=619261+-619232;T=239284+-239279;z=216046-215984;s=663272+-663209,["\057"]=267533+-267484;["\043"]=-1016474-(-1016516);v=624327-624270,e=262323+-262273,O=-417941-(-417950),u=58848-58800;c=657454+-657437;l=-559244+559263,j=585797-585795,R=359582+-359557;d=211741+-211703;["\049"]=427289-427271;N=1003593-1003532;K=-1379+1380,k=-254114+254149,w=66594+-66594;["\056"]=-180750+180777;F=-420899+420923;V=846346-846339,P=136045+-135994,M=513944-513890;["\053"]=805400-805359;["\048"]=595792+-595747;C=944656-944636,f=784819+-784761;G=-732836+732866,["\055"]=-558166+558213,i=-234839-(-234842),Q=-736832-(-736858),q=-364868+364883;["\047"]=254319+-254313;["\050"]=-951596-(-951636),n=77243-77204;a=832438+-832383,U=-501894-(-501925);r=415430+-415386;h=881554+-881498;W=-890394-(-890446)}local f=type local P=string.len local X=math.floor local K=string.sub for y=609331-609330,#b,-838780+838781 do local Y=b[y]if f(Y)=="\115\116\114\105\110\103"then local f=P(Y)local E={}local N=-270474-(-270475)local k=250395-250395 local Z=497407-497407 while N<=f do local y=K(Y,N,N)local G=J[y]if G then k=k+G*(936069+-936005)^((947186-947183)-Z)Z=Z+(-677187-(-677188))if Z==871468+-871464 then Z=-694211+694211 local y=X(k/(740799-675263))local G=X((k%(103055-37519))/(622365+-622109))local b=k%(-521042+521298)m(E,M(y,G,b))k=336318-336318 end elseif y=="\061"then m(E,M(X(k/(-308890-(-374426)))))if N>=f or K(Y,N+(790029-790028),N+(-911461-(-911462)))~="\061"then m(E,M(X((k%(-390640+456176))/(-87510+87766))))end break end N=N+(-371837-(-371838))end b[y]=G(E)end end end return(function(y,G,b,J,f,P,X,l,Y,K,c,z,Z,M,E,I,k,u,W,N)Z,u,W,I,Y,k,N,M,z,c,E,l,K=function(y)local m,M=-423943+423944,y[903884-903883]while M do Y[M],m=Y[M]-(338089+-338088),m+(-383573+383574)if 584179+-584179==Y[M]then Y[M],K[M]=nil,nil end M=y[m]end end,function(y,m)local G=k(m)local b=function(b)return M(y,{b},m,G)end return b end,function(y,m)local G=k(m)local b=function()return M(y,{},m,G)end return b end,function(y,m)local G=k(m)local b=function(b,J,f)return M(y,{b,J,f},m,G)end return b end,{},function(y)for m=-242150-(-242151),#y,-690036-(-690037)do Y[y[m]]=(414020+-414019)+Y[y[m]]end if b then local M=b(true)local G=f(M)G[m(-675902+632156)],G[m(-613582-(-569804))],G[m(-331761-(-287980))]=y,Z,function()return-724369+-2610945 end return M else return J({},{[m(-870929-(-827151))]=Z,[m(-222327+178581)]=y,[m(-206307+162526)]=function()return-2611581-723733 end})end end,670360+-670360,function(M,b,J,f)local c,n,x,H,q,T,k,j,d,V,L,h,Z,i,B,A,e,N,U,o,s,w,S,X,F,t,Q,v,g,r,C,a,p,Y while M do if M<7629746-236957 then if M<4015439-(-6878)then if M<1692908-244156 then if M<-104860+797912 then if M<782374+-231708 then if M<550012-131694 then if M<504287+-170423 then s=z(s)V=z(V)A=z(A)j=z(j)t=nil q=z(q)M=13088820-(-199929)S=z(S)else c=-47972+47974 Z=-900288-(-900289)N=K[J[126429+-126428]]k=N(Z,c)N=-489975+489976 Y=k==N M=Y and 10374654-1032990 or 9293907-549270 X=Y end else r=K[N]M=r and 524548+5272515 or-987720+15738869 v=r end else if M<-331717-(-925378)then M=599980+14486231 H=m(-161501+117729)i=y[H]X=i else K[N]=X M=-47395+156561 end end else if M<2035147-929520 then if M<677451-(-386722)then M={}c=543730+35184371545102 x=m(-844790-(-801010))K[J[-411432-(-411434)]]=M X=K[J[644178-644175]]Z=X B=-737638-(-737893)X=N%c K[J[703430+-703426]]=X n=N%B B=-901708+901710 c=n+B K[J[765374+-765369]]=c B=y[x]x=m(-291462-(-247697))n=B[x]B=n(Y)n=m(-278178-(-234424))i=B x=-487072-(-487073)k[N]=n M=6377245-524897 n=-719369-(-719480)H=-808930-(-808931)U=H H=-516962+516962 d=U<H H=x-U else M=1978275-505929 end else if M<-75050+1408051 then L=-183637+183639 C=t[L]M=1976004-(-361149)L=K[V]p=C==L e=p else p=-784102+784103 g=t[p]M=15071916-604435 e=g end end end else if M<2928972-631580 then if M<-846031+2562840 then if M<1793016-174685 then if M<844516+611568 then k=-1044111+1044204 N=K[J[167145+-167143]]Y=N*k N=449796991347-(-579422)X=Y+N Y=35184371306260-(-782572)M=X%Y N=733584+-733583 K[J[-871600-(-871602)]]=M M=-122584+16450546 Y=K[J[-813932+813935]]X=Y~=N else X={N}M=y[m(-335688+291932)]end else M=K[J[-727665+727666]]x=758100+-758100 N=k i=474292-474037 B=M(x,i)Y[N]=B M=8959720-1018241 N=nil end else if M<-715057+2543523 then M=true M=M and 10057486-(-599431)or 13185089-(-940070)else M=K[J[546610-546603]]M=M and 10965318-1003637 or 14256806-918668 end end else if M<446360+3025935 then if M<3028160-459642 then M=g M=-33832-(-683404)X=e else Y=nil M=832723-(-1021286)K[J[414736-414731]]=X end else if M<4574188-912918 then Y=K[J[963966-963965]]X=#Y Y=988640+-988640 M=X==Y M=M and 1185785-(-269432)or 6563496-861524 else M=H X=i M=i and 14516955-(-569256)or-561738+1129196 end end end end else if M<-855630+6581973 then if M<-945757+6230282 then if M<733994+3650654 then if M<5144225-936556 then if M<674274+3489163 then M=13827670-1000784 else N=b[-613447+613449]M=K[J[822903-822902]]Y=b[281568+-281567]k=M M=k[N]M=M and-77020+1165800 or 1095297-121405 end else Q=Q+j w=Q<=h q=not A w=q and w q=Q>=h q=A and q w=q or w q=-553625+12789169 M=w and q w=455325+3951437 M=M or w end else if M<4052341-(-916458)then h=488113-488113 Q=#F w=Q==h M=-40301+7043179 else M=true K[J[477882-477881]]=M M=y[m(-808611-(-764861))]X={}end end else if M<4710964-(-850721)then if M<331764+5028652 then N=m(799275-843033)X=11906650-534308 k=317367+12573235 Y=N^k M=X-Y Y=M X=m(570950-614710)M=X/Y X={M}M=y[m(-23842-19933)]else Z=nil M=2254574-782228 n=nil B=nil end else if M<5732365-107491 then M=true M=M and 704158+9084166 or 6926048-414533 else k=m(-643702+599926)N=y[k]M=y[m(-1090224-(-1046477))]k=m(-572575+528822)Y=N[k]k=K[J[-879546-(-879547)]]N={Y(k)}X={G(N)}end end end else if M<6969067-473788 then if M<427246+5406159 then if M<-340533+6112498 then if M<5040296-(-719247)then t=-159311-(-159313)S=209954-209699 A=m(338880-382631)j=E()K[j]=v q=-64700+64800 X=y[A]A=m(-470170+426413)M=X[A]A=-204694+204695 X=M(A,q)A=E()q=795610+-795610 K[A]=X M=K[B]X=M(q,S)o=-505703-(-505703)q=E()V=332003-332002 K[q]=X S=1027019-1027018 M=K[B]p=m(875837+-919608)s=K[A]X=M(S,s)S=E()K[S]=X T=696704-686704 X=K[B]s=X(V,t)X=-527904+527905 M=s==X s=E()X=m(392358-436140)K[s]=M g=y[p]C=K[B]t=m(-827532-(-783753))M=m(395861-439623)L={C(o,T)}M=w[M]p=g(G(L))g=m(1041440+-1085219)e=p..g V=t..e M=M(w,X,V)V=E()t=m(-574299-(-530531))K[V]=M X=y[t]e=I(669539+-330286,{B;j;H,k;N;Q;s;V;A;S,q,i})t={X(e)}M={G(t)}t=M M=K[s]M=M and 9459918-(-201953)or 6792736-(-348191)else M=-28475+5603304 end else M=15131479-380330 r=U==d v=r end else if M<342525+6042446 then F=not d H=H+U x=H<=i x=F and x F=H>=i F=d and F x=F or x F=225731+12983706 M=x and F x=-241537+5737079 M=M or x else M=K[J[-251499-(-251509)]]N=K[J[1013874+-1013863]]Y[M]=N M=K[J[-405704+405716]]N={M(Y)}M=y[m(-770101+726313)]X={G(N)}end end else if M<592201+6399637 then if M<5757412-(-747578)then k=607068+-607067 N=K[J[-925228-(-925231)]]Y=N~=k M=Y and 933530+7276477 or-232115+16560077 else M=y[m(-441006-(-397242))]X={}end else if M<55867+6964221 then Q=-33077+33078 h=#F M=182208+9057185 w=Z(Q,h)q=-249593-(-249594)Q=n(F,w)h=K[d]A=Q-q j=B(A)w=nil h[Q]=j Q=nil else g=K[N]e=g M=g and-569032+1982042 or 637482+13829999 end end end end end else if M<-25649+12454106 then if M<8886485-(-614109)then if M<22672+8606640 then if M<9103047-865320 then if M<8780383-763139 then if M<229323+7638567 then c=z(c)U=nil H=z(H)U={}N=z(N)k=z(k)i=z(i)Q=z(Q)w=nil n=nil x=nil Z=z(Z)B=z(B)N=nil k=nil d=nil F=nil i=m(-194564-(-150784))F={}w=882204-882203 n=m(636082+-679833)c=y[n]B=m(763215-806966)x=m(-920654+876878)n=m(-685684+641932)Z=c[n]c=E()d=E()K[c]=Z n=y[B]B=m(695768+-739525)Z=n[B]B=y[x]Q=905013-904757 H=E()x=m(437473-481226)n=B[x]x=y[i]i=m(947349-991136)B=x[i]h=Q i=E()x=666026-666026 K[i]=x M=221616+4158386 Q=-824741-(-824742)x=978993+-978991 K[H]=x K[d]=U j=Q U=-718651+718651 Q=711339-711339 x={}A=j<Q Q=w-j else B=not n k=k+c N=k<=Z N=B and N B=k>=Z B=n and B N=B or N B=2638320-1013451 M=N and B N=450222+6022991 M=M or N end else N=K[J[-832767+832770]]k=413356+-413324 Y=N%k Z=K[J[-231355+231359]]B=K[J[-689498+689500]]M=477610+5224362 U=843555+-843542 i=880442-880440 w=K[J[-372062+372065]]F=w-Y w=-87970-(-88002)d=F/w H=U-d x=i^H n=B/x c=Z(n)Z=4295392511-425215 k=c%Z c=-252551-(-252553)Z=c^Y N=k/Z Z=K[J[-850829+850833]]x=50813-50812 B=N%x x=4295666472-699176 n=B*x c=Z(n)Z=K[J[-839677-(-839681)]]n=Z(N)k=c+n B=881075-815539 c=764369+-698833 i=-391941+392197 Z=k%c N=nil n=k-Z U=-60868+61124 c=n/B B=559613+-559357 n=Z%B x=Z-n B=x/i k=nil i=-44854+45110 Y=nil x=c%i H=c-x i=H/U c=nil Z=nil H={n;B,x,i}x=nil i=nil K[J[330496+-330495]]=H n=nil B=nil end else if M<526995+7841076 then h=m(246591-290368)M=y[h]h=m(-972508-(-928764))y[h]=M M=-954811+6723002 else Z=m(-825754-(-781983))X=m(97975+-141758)x=m(464220+-507988)M=y[X]Y=K[J[462913+-462909]]k=y[Z]i=W(12942399-174891,{})B=y[x]x={B(i)}n={G(x)}B=-269619-(-269621)c=n[B]Z=k(c)k=m(35311-79093)N=Y(Z,k)Y={N()}X=M(G(Y))N=K[J[188094+-188089]]Y=X X=N M=N and 13098285-(-70825)or 535821+2924088 end end else if M<-438290+9765356 then if M<8621371-(-471063)then N=K[J[-590107+590109]]k=K[J[-541433+541436]]Y=N==k M=9132579-(-209085)X=Y else h=-726817+726817 Q=#F w=Q==h M=w and 15992854-(-480400)or 7252437-249559 end else if M<-421468+9758815 then g=M L=-134199+134200 C=t[L]L=false p=C==L e=p M=p and 1401982-103611 or 427341+1909812 else M=X and 8596270-58963 or-539908+2393917 end end end else if M<9933524-(-624632)then if M<-640053+10598452 then if M<10033550-218968 then if M<9016371-(-765482)then e=K[N]X=e M=e and 9014346-(-319984)or 723054-73482 else M=K[B]a=870897-870896 h=-665959-(-665965)r=M(a,h)M=m(-520749-(-476972))h=m(-298516+254739)y[M]=r a=y[h]h=-117236-(-117238)M=a>h M=M and 9704109-(-688947)or 375285+7897291 end else n=X B=m(351834+-395585)X=y[B]x=m(-438992-(-395216))B=m(-881948+838191)M=X[B]B=E()K[B]=M d=m(-125508-(-81732))X=y[x]x=m(-780275+736506)M=X[x]H=M x=M U=y[d]i=U M=U and 10519908-(-523215)or 3177007-(-810674)end else if M<370624+9781854 then Y=m(-353170-(-309409))k=236731-236731 M=y[Y]N=K[J[137182-137174]]Y=M(N,k)M=12570623-(-767515)else a=m(936043+-979814)M=y[a]j=m(194649+-238393)h=y[j]a=M(h)M=m(646679+-690456)y[M]=a M=5623530-(-144661)end end else if M<10207923-(-653515)then if M<534778+10132209 then M=6021060-446231 else M=252674+9578180 n=K[c]X=n end else if M<11746572-(-52958)then F=m(155525+-199301)d=y[F]M=3094539-(-893142)F=m(1031665+-1075437)U=d[F]i=U else M=-835846+5215848 w=Q q=w F[w]=q w=nil end end end end else if M<14632029-552113 then if M<613363+12674582 then if M<13404682-216676 then if M<495357+12353187 then if M<580195+12205623 then k=-151285+8415856 N=m(852886-896634)X=414847+12821192 Y=N^k M=X-Y Y=M X=m(413968+-457713)M=X/Y X={M}M=y[m(-627315-(-583541))]else M=true M=M and-602032+16921962 or 185826+13093490 end else k=K[J[473255+-473249]]M=4184065-724156 N=k==Y X=N end else if M<86367+13148324 then a=m(721869+-765649)r=y[a]a=m(165073+-208839)x=H v=r[a]M=350694+5501654 r=v(Y,x)v=K[J[1037061-1037055]]a=v()Q=r+a w=Q+n Q=529396-529140 a=195002-195001 F=w%Q x=nil Q=k[N]n=F r=n+a v=Z[r]w=Q..v k[N]=w else M=y[m(-757020+713271)]X={}end end else if M<13867577-535483 then if M<280385+13020549 then j=not h v=v+a X=v<=r X=j and X j=v>=r j=h and j X=j or X j=6149243-395130 M=X and j X=-334978+879533 M=M or X else M=true k=m(-447486-(-403706))Y=b N=E()K[N]=M X=y[k]k=m(438678-482463)M=X[k]k=E()Z=E()K[k]=M B=m(210500+-254268)c=E()M=u(15278206-813954,{})K[Z]=M M=false K[c]=M x=u(931775+4184330,{c})n=y[B]B=n(x)X=B M=B and 10748957-9776 or 10636643-805789 end else if M<13037263-(-600012)then k=K[J[-55603-(-55612)]]N=-864320+864321 Z=k M={}Y=M k=654550+-654549 c=k k=-453590+453590 n=c<k M=7330257-(-611222)k=N-c else M=true M=147445+13977714 end end end else if M<161248+15638677 then if M<-15086+14600740 then if M<15444365-979251 then if M<-76800+14440399 then M=W(884968+3275441,{Z})r={M()}M=y[m(-319113+275329)]X={G(r)}else Y=m(-211982-(-168219))X=m(460627+-504388)M=y[X]X=M(Y)M=y[m(-381832-(-338046))]X={}end else K[N]=e L=K[S]o=920424+-920423 C=L+o p=t[C]g=U+p p=472346+-472090 M=g%p U=M C=K[q]p=d+C C=-437424+437680 g=p%C d=g M=191754-82588 end else if M<14182170-(-830069)then K[N]=v M=K[N]M=M and 16351027-(-24991)or 337074+13401468 else a=m(-137319-(-93548))w=u(-838923+6169615,{})H=537127+-537124 i=E()U=234465+-234400 K[i]=X M=K[B]X=M(H,U)H=E()K[H]=X M=-454625+454625 U=M M=871208-871208 d=M F=m(-521475+477707)X=y[F]F={X(w)}M={G(F)}X=-844619+844621 F=M M=F[X]w=M X=m(718283-762066)M=y[X]Q=K[k]r=y[a]a=r(w)r=m(884117+-927899)v=Q(a,r)Q={v()}X=M(G(Q))Q=E()K[Q]=X v=K[H]X=-27920+27921 M=12607005-(-681744)r=v v=891349+-891348 a=v v=103429-103429 h=a<v v=X-a end end else if M<3745+16360893 then if M<16884823-563712 then X=m(-171889+128112)M=y[X]Y=m(-15272+-28472)X=y[Y]Y=m(-539531+495787)y[Y]=M Y=m(-60134+16357)y[Y]=X Y=K[J[947842-947841]]N=Y()M=473991+12352895 else k=-403081+403164 N=K[J[143029-143026]]Y=N*k N=271980+-271723 X=Y%N K[J[-793232-(-793235)]]=X M=670820+5827107 end else if M<15421674-(-975955)then M=691581+6960364 else Q=E()Z=nil w={}p=nil K[Q]=w F=nil s=m(-1033135-(-989389))h=I(3920535-415080,{Q,i;H,c})j=E()X={}w=E()A=m(-379689-(-335916))K[w]=h h={}n=nil B=nil t=m(235736-279495)K[j]=h c=z(c)h=y[A]q={}V=K[j]S={[s]=V,[t]=p}A=h(q,S)c=m(632893-676663)k=A h=l(4546427-379721,{j;Q,d;i;H;w})U=nil w=z(w)x=nil i=z(i)H=z(H)N=h Q=z(Q)Z=y[c]x=m(225957-269724)d=z(d)j=z(j)i=4025188061847-478021 M=y[m(-626825-(-583070))]B=N(x,i)n=k[B]k=nil N=nil c=Z(n)end end end end end end end M=#f return G(X)end,function(y)Y[y]=Y[y]-(680064-680063)if Y[y]==-231125-(-231125)then Y[y],K[y]=nil,nil end end,function(y,m)local G=k(m)local b=function(...)return M(y,{...},m,G)end return b end,function()N=(-35525-(-35526))+N Y[N]=153328-153327 return N end,function(y,m)local G=k(m)local b=function(b,J,f,P)return M(y,{b;J;f;P},m,G)end return b end,{}return(c(12501021-(-815479),{}))(G(X))end)(getfenv and getfenv()or _ENV,unpack or table[m(-963039+919267)],newproxy,setmetatable,getmetatable,select,{...})end)(...)
+        function obfuscateFunctions(code) {
+            const funcMap = {};
+            const argMap = {};
+            let obfuscatedCode = code;
 
-]]
+            // Match function definitions
+            const funcPattern = /function\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*\(([a-zA-Z0-9_,\s]*)\)/g;
+            let match;
+
+            while ((match = funcPattern.exec(code)) !== null) {
+                const funcName = match[1];
+                const args = match[2];
+
+                if (!reservedWords[funcName] && !funcMap[funcName]) {
+                    funcMap[funcName] = generateRandomName();
+                }
+
+                if (args) {
+                    const argList = args.match(/[a-zA-Z_][a-zA-Z0-9_]*/g);
+                    if (argList) {
+                        for (const arg of argList) {
+                            if (!reservedWords[arg] && !argMap[arg]) {
+                                argMap[arg] = generateRandomName();
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Replace function names
+            obfuscatedCode = obfuscatedCode.replace(/function\s+([a-zA-Z_][a-zA-Z0-9_]*)/g, function(match, funcName) {
+                return "function " + (funcMap[funcName] || funcName);
+            });
+
+            // Replace function calls
+            for (const [originalFunc, obfuscatedFunc] of Object.entries(funcMap)) {
+                const regex = new RegExp(originalFunc.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(', 'g');
+                obfuscatedCode = obfuscatedCode.replace(regex, obfuscatedFunc + "(");
+            }
+
+            // Replace arguments
+            for (const [originalArg, obfuscatedArg] of Object.entries(argMap)) {
+                obfuscatedCode = replaceUnquoted(obfuscatedCode, originalArg, obfuscatedArg);
+            }
+
+            return obfuscatedCode;
+        }
+
+        function processVariableRenaming(code) {
+            const renamedVars = [];
+            const assignmentLines = [];
+            
+            const { obfuscatedCode: varObfuscatedCode } = obfuscateLocalVariables(code);
+            let finalCode = obfuscateFunctions(varObfuscatedCode);
+
+            // Handle built-in functions
+            for (const functionName of luaFunctions) {
+                if (code.includes(functionName)) {
+                    if (!varencNames[functionName]) {
+                        const newName = generateRandomName();
+                        varencNames[functionName] = newName;
+                        renamedVars.push(newName);
+                        assignmentLines.push(newName + " = " + functionName + ";");
+                    }
+                    const regex = new RegExp(functionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(', 'g');
+                    finalCode = finalCode.replace(regex, varencNames[functionName] + "(");
+                }
+            }
+
+            const localDeclaration = renamedVars.length > 0 ? "local " + renamedVars.join(", ") : "";
+            const assignments = assignmentLines.length > 0 ? "\n" + assignmentLines.join(" ") : "";
+            
+            return localDeclaration + assignments + "\n" + finalCode;
+        }
+
+        function processScript(code) {
+            const randomDecryptName = generateRandomName();
+            const randomIsValidCharName = generateRandomName();
+            const randomResultName = generateRandomName();
+            const randomCodeName = generateRandomName();
+            const randomOffsetName = generateRandomName();
+            const randomByteName = generateRandomName();
+            const randomNewByteName = generateRandomName();
+
+            const decodeFunction = `local function ${randomIsValidCharName}(${randomByteName})
+    return (${randomByteName} >= 48 and ${randomByteName} <= 57) or (${randomByteName} >= 65 and ${randomByteName} <= 90) or (${randomByteName} >= 97 and ${randomByteName} <= 122)
+end
+
+local function ${randomDecryptName}(${randomCodeName}, ${randomOffsetName})
+    local ${randomResultName} = {}
+    for i = 1, #${randomCodeName} do
+        local ${randomByteName} = ${randomCodeName}:byte(i)
+        if ${randomIsValidCharName}(${randomByteName}) then
+            local ${randomNewByteName}
+            if ${randomByteName} >= 48 and ${randomByteName} <= 57 then
+                ${randomNewByteName} = ((${randomByteName} - 48 - ${randomOffsetName} + 10) % 10) + 48
+            elseif ${randomByteName} >= 65 and ${randomByteName} <= 90 then
+                ${randomNewByteName} = ((${randomByteName} - 65 - ${randomOffsetName} + 26) % 26) + 65
+            elseif ${randomByteName} >= 97 and ${randomByteName} <= 122 then
+                ${randomNewByteName} = ((${randomByteName} - 97 - ${randomOffsetName} + 26) % 26) + 97
+            end
+            table.insert(${randomResultName}, string.char(${randomNewByteName}))
+        else
+            table.insert(${randomResultName}, string.char(${randomByteName}))
+        end
+    end
+    return table.concat(${randomResultName})
+end
 
 `;
-                
-                let obfuscated = "";
-                let vars = [];
 
-                for (let i = 0; i < input.length; i++) {
-                    const byte = input.charCodeAt(i);
-                    const varName =v1(Math.floor(Math.random() * 45) + 5);
-                    obfuscated += `local ${varName}='${byte}';`;
-                    vars.push(varName);
+            // First apply variable renaming
+            code = processVariableRenaming(code);
+
+            // Then process string literals
+            code = code.replace(/(['"])((?:\\.|(?!\1)[^\\])*)\1/g, function(match, quote, str) {
+                const offset = Math.floor(Math.random() * 25) + 1;
+                const encodedStr = caesarCipher(str, offset);
+                return `${randomDecryptName}(${quote}${encodedStr}${quote}, ${offset})`;
+            });
+
+            return decodeFunction + code;
+        }
+
+        // Garbage Code Inserter functions
+        const LOWERCASE_A = 97;
+        const LOWERCASE_Z = 122;
+        const MAX_RANDOM_NUMBER = 100;
+        const MAX_LOOP_COUNT = 10;
+        const VARIABLE_NAME_LENGTH = 6;
+
+        function generateRandomVariableName() {
+            let name = "";
+            for (let i = 0; i < VARIABLE_NAME_LENGTH; i++) {
+                name += String.fromCharCode(Math.floor(Math.random() * (LOWERCASE_Z - LOWERCASE_A + 1)) + LOWERCASE_A);
+            }
+            return name;
+        }
+
+        function generateRandomNumber(max = MAX_RANDOM_NUMBER) {
+            return Math.floor(Math.random() * max) + 1;
+        }
+
+        const codeTypes = {
+            variable: function() {
+                return `local ${generateRandomVariableName()} = ${generateRandomNumber()}`;
+            },
+            while_loop: function() {
+                return `while ${Math.random() > 0.5} do local _ = ${generateRandomNumber(100)} break end`;
+            },
+            for_loop: function() {
+                return `for ${generateRandomVariableName()} = 1, ${generateRandomNumber(MAX_LOOP_COUNT)} do local _ = ${generateRandomNumber()} end`;
+            },
+            if_statement: function() {
+                return `if ${Math.random() > 0.5} then local _ = ${generateRandomNumber()} end`;
+            },
+            function_def: function() {
+                return `local function ${generateRandomVariableName()}(${generateRandomVariableName()}) local _ = ${generateRandomNumber()} end`;
+            }
+        };
+
+        const codeTypeKeys = Object.keys(codeTypes);
+
+        function generateRandomCode() {
+            const randomKey = codeTypeKeys[Math.floor(Math.random() * codeTypeKeys.length)];
+            return codeTypes[randomKey]();
+        }
+
+        function generateGarbage(blocks, sep = "\n") {
+            const garbageCode = [];
+            for (let i = 0; i < blocks; i++) {
+                const code = generateRandomCode();
+                if (!code.includes("while true") && !code.match(/for \w+ = \d+, \d+ do local _ = \d+ end/)) {
+                    garbageCode.push(code);
                 }
-
-                const final = header + obfuscated + `loadstring(string.char(${vars.join(',')}))()`;
-                
-                obfuscatedCode = final;
-                
-                // Auto download
-                const filename = document.getElementById('filename').value.trim() || 'script';
-                const blob = new Blob([final], { type: 'text/plain' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = filename + '.lua';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-                
-                downloadBtn.disabled = false;
-                status.textContent = "Obfuscated and downloaded: " + filename + ".lua";
-                status.className = "status success";
-            }, 300);
+            }
+            return garbageCode.join(sep);
         }
 
-        function clearAll() {
-            document.getElementById('input').value = '';
-            document.getElementById('filename').value = 'script';
-            document.getElementById('status').textContent = 'Ready';
-            document.getElementById('status').className = 'status';
-            const downloadBtn = document.getElementById('downloadBtn');
-            if (downloadBtn) downloadBtn.disabled = true;
-            obfuscatedCode = '';
+        function processGarbageCode(code, garbageBlocks) {
+            if (typeof code !== "string" || code.length === 0) {
+                throw new Error("Input code must be a non-empty string");
+            }
+            if (typeof garbageBlocks !== "number") {
+                throw new Error("garbage_blocks must be a number");
+            }
+            
+            const prefixGarbage = generateGarbage(garbageBlocks);
+            const suffixGarbage = generateGarbage(garbageBlocks);
+            
+            return prefixGarbage + "\n" + code + "\n" + suffixGarbage;
         }
 
-        function downloadFile() {
-            if (!obfuscatedCode) {
-                document.getElementById('status').textContent = "No code to download";
-                document.getElementById('status').className = "status error";
+        function addPadding(content) {
+            // Use garbage code inserter for better padding
+            const garbageBlocks = 50; // Number of garbage code blocks
+            return processGarbageCode(content, garbageBlocks);
+        }
+
+        function obfuscateScript() {
+            const input = document.getElementById('scriptInput').value.trim();
+            const button = document.getElementById('obfuscateBtn');
+            const status = document.getElementById('status');
+
+            if (!input) {
+                status.innerHTML = '<span class="error">Please enter a script to obfuscate!</span>';
                 return;
             }
 
-            const filename = document.getElementById('filename').value.trim() || 'script';
-            const blob = new Blob([obfuscatedCode], { type: 'text/plain' });
-            const url = window.URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename + '.lua';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            window.URL.revokeObjectURL(url);
-            
-            document.getElementById('status').textContent = "Downloaded: " + filename + ".lua";
-            document.getElementById('status').className = "status success";
+            button.disabled = true;
+            button.textContent = 'Processing...';
+            status.innerHTML = 'Obfuscating script...';
+
+            setTimeout(() => {
+                try {
+                    let obfuscatedCode = processScript(input);
+                    
+                    // Add padding to reach approximately 1MB
+                    const targetSize = 1024 * 1024; // 1MB
+                    while (obfuscatedCode.length < targetSize) {
+                        obfuscatedCode = addPadding(obfuscatedCode);
+                        if (obfuscatedCode.length > targetSize * 1.5) break; // Safety check
+                    }
+
+                    // Create download
+                    const blob = new Blob([obfuscatedCode], { type: 'text/plain' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    
+                    const now = new Date();
+                    const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+                    
+                    a.href = url;
+                    a.download = `obfuscated_script_${timestamp}.lua`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(url);
+
+                    const fileSizeKB = Math.round(obfuscatedCode.length / 1024);
+                    status.innerHTML = `<span class="success">Script obfuscated successfully! File downloaded (${fileSizeKB} KB)</span>`;
+                } catch (error) {
+                    status.innerHTML = '<span class="error">Error obfuscating script. Please check your code.</span>';
+                } finally {
+                    button.disabled = false;
+                    button.textContent = 'Obfuscate Script';
+                }
+            }, 500);
         }
+
+        // Allow Enter key in textarea but not submit
+        document.getElementById('scriptInput').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                obfuscateScript();
+            }
+        });
     </script>
 </body>
 </html>
