@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aux Obfuscator</title>
+    <title>Lua Code Obfuscator</title>
     <style>
         * {
             margin: 0;
@@ -12,299 +12,227 @@
         }
 
         body {
-            font-family: 'Courier New', monospace;
-            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            background-color: #1a1a1a;
             color: #ffffff;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            font-family: Arial, sans-serif;
+            padding: 20px;
         }
 
         .container {
-            background: rgba(25, 25, 25, 0.9);
-            border: 2px solid #333;
-            border-radius: 10px;
-            padding: 40px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #2d2d2d;
+            padding: 30px;
+            border-radius: 8px;
+        }
+
+        h1 {
             text-align: center;
-            max-width: 500px;
-            width: 90%;
-        }
-
-        .title {
-            font-size: 2.5em;
-            margin-bottom: 10px;
-            background: linear-gradient(45deg, #00ff7f, #00bfff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-weight: bold;
-        }
-
-        .subtitle {
-            color: #888;
             margin-bottom: 30px;
-            font-size: 1.1em;
+            color: #ffffff;
         }
 
-        .file-input-wrapper {
-            position: relative;
-            margin-bottom: 30px;
-        }
-
-        .file-input {
-            display: none;
-        }
-
-        .file-input-label {
-            display: inline-block;
-            padding: 15px 30px;
-            background: #333;
-            border: 2px dashed #666;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1.1em;
-        }
-
-        .file-input-label:hover {
-            background: #444;
-            border-color: #00ff7f;
-            color: #00ff7f;
-        }
-
-        .file-selected {
-            color: #00ff7f;
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-
-        .filename-input-wrapper {
+        .input-group {
             margin-bottom: 20px;
         }
 
-        .filename-input {
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #cccccc;
+        }
+
+        input[type="text"] {
             width: 100%;
-            padding: 12px;
-            background: #333;
-            border: 2px solid #555;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 1em;
-            font-family: 'Courier New', monospace;
-            transition: border-color 0.3s ease;
+            padding: 10px;
+            background-color: #404040;
+            border: 1px solid #555555;
+            color: #ffffff;
+            border-radius: 4px;
         }
 
-        .filename-input:focus {
-            outline: none;
-            border-color: #00ff7f;
+        textarea {
+            width: 100%;
+            height: 200px;
+            padding: 10px;
+            background-color: #404040;
+            border: 1px solid #555555;
+            color: #ffffff;
+            font-family: monospace;
+            border-radius: 4px;
+            resize: vertical;
         }
 
-        .filename-input::placeholder {
-            color: #888;
+        .button-container {
+            text-align: center;
+            margin: 20px 0;
         }
 
-        .filename-hint {
-            color: #888;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-
-        .obfuscate-btn {
-            background: linear-gradient(45deg, #00ff7f, #00bfff);
+        button {
+            background-color: #007acc;
+            color: white;
             border: none;
-            padding: 15px 40px;
-            border-radius: 8px;
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #000;
+            padding: 12px 25px;
+            margin: 5px;
+            border-radius: 4px;
             cursor: pointer;
-            transition: transform 0.2s ease;
-            font-family: 'Courier New', monospace;
+            font-size: 16px;
         }
 
-        .obfuscate-btn:hover {
-            transform: scale(1.05);
+        button:hover {
+            background-color: #005a99;
         }
 
-        .obfuscate-btn:disabled {
-            background: #666;
+        button:disabled {
+            background-color: #555555;
             cursor: not-allowed;
-            transform: none;
         }
 
-        .processing {
-            display: none;
-            margin-top: 20px;
-            color: #00ff7f;
+        .clear-btn {
+            background-color: #cc4444;
         }
 
-        .spinner {
-            border: 3px solid #333;
-            border-top: 3px solid #00ff7f;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            display: inline-block;
-            margin-right: 10px;
+        .clear-btn:hover {
+            background-color: #994444;
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .status {
+            text-align: center;
+            margin: 15px 0;
+            color: #cccccc;
         }
 
-        .ascii-art {
-            font-size: 0.6em;
-            color: #444;
-            margin-bottom: 20px;
-            white-space: pre;
-            line-height: 1;
+        .status.success {
+            color: #44cc44;
+        }
+
+        .status.error {
+            color: #cc4444;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="ascii-art">███╗   ██╗██╗   ██╗██╗  ██╗
-████╗  ██║██║   ██║╚██╗██╔╝
-██╔██╗ ██║██║   ██║ ╚███╔╝ 
-██║╚██╗██║██║   ██║ ██╔██╗ 
-██║ ╚████║╚██████╔╝██╔╝ ██╗
-╚═╝  ╚═══╝ ╚═════╝ ╚═╝  ╚═╝</div>
+        <h1>Simple Lua Obfuscator</h1>
         
-        <h1 class="title">Aux Obfuscator</h1>
-        <p class="subtitle">Protect your code from skidders</p>
-        
-        <div class="file-input-wrapper">
-            <input type="file" id="fileInput" class="file-input" accept=".lua,.txt">
-            <label for="fileInput" class="file-input-label">
-                📁 Choose File to Obfuscate
-            </label>
-            <div id="fileSelected" class="file-selected"></div>
+        <div class="input-group">
+            <label for="filename">File Name:</label>
+            <input type="text" id="filename" placeholder="script" value="script">
         </div>
         
-        <div class="filename-input-wrapper">
-            <input type="text" id="filenameInput" class="filename-input" placeholder="Enter filename (e.g., JailBreak_Obfuscated_File)">
-            <div class="filename-hint">📝 Put any name you want to obfuscate</div>
+        <div class="input-group">
+            <label for="input">Put your Lua code here:</label>
+            <textarea id="input" placeholder='loadstring(game:HttpGet("https://raw.githubusercontent.com/user/repo/script.lua"))()'></textarea>
         </div>
-        
-        <button id="obfuscateBtn" class="obfuscate-btn" disabled>
-            🔒 Obfuscate!
-        </button>
-        
-        <div id="processing" class="processing">
-            <div class="spinner"></div>
-            Processing your code...
+
+        <div class="button-container">
+            <button onclick="obfuscateCode()">Obfuscate!</button>
+            <button class="clear-btn" onclick="clearAll()">Clear</button>
         </div>
+
+        <div class="status" id="status">Ready</div>
     </div>
 
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const fileSelected = document.getElementById('fileSelected');
-        const filenameInput = document.getElementById('filenameInput');
-        const obfuscateBtn = document.getElementById('obfuscateBtn');
-        const processing = document.getElementById('processing');
-        
-        let selectedFile = null;
+        let obfuscatedCode = '';
 
-        fileInput.addEventListener('change', function(e) {
-            selectedFile = e.target.files[0];
-            if (selectedFile) {
-                fileSelected.textContent = `✅ Selected: ${selectedFile.name}`;
-                obfuscateBtn.disabled = false;
-            }
-        });
-
-        // Your EXACT obfuscation function (converted from your Lua code)
         function v1(v2) {
             const v3 = [];
-            // Using your exact character string
-            const v4 = "IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
+            const v4 = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_IllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCHllaFUCKvBITCHllaIllaFUCKvBITCH_____IIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIIII";
             
             for (let v5 = 1; v5 <= v2; v5++) {
-                const v6 = Math.floor(Math.random() * 16) + 5; // 5-20 characters like your code
+                const v6 = Math.floor(Math.random() * 16) + 5;
                 let v7 = "";
                 for (let v8 = 1; v8 <= v6; v8++) {
-                    const v9 = Math.floor(Math.random() * v4.length) + 1;
-                    v7 = v7 + v4.substring(v9 - 1, v9);
+                    const v9 = Math.floor(Math.random() * v4.length);
+                    v7 += v4.charAt(v9);
                 }
                 v3.push(v7);
             }
             return v3.join("");
         }
 
-        function obfuscateCode(code) {
-            const header = "--[[ █████╗ ██╗  ██╗██╗   ██╗███████╗     ██████╗ ██████╗ ███████╗██╗   ██╗███████╗ ██████╗ █████╗ ████████╗ ██████╗ ██████╗ \n██╔══██╗╚██╗██╔╝██║   ██║██╔════╝    ██╔═══██╗██╔══██╗██╔════╝██║   ██║██╔════╝██╔════╝██╔══██╗╚══██╔══╝██╔═══██╗██╔══██╗\n███████║ ╚███╔╝ ██║   ██║███████╗    ██║   ██║██████╔╝█████╗  ██║   ██║███████╗██║     ███████║   ██║   ██║   ██║██████╔╝\n██╔══██║ ██╔██╗ ██║   ██║╚════██║    ██║   ██║██╔══██╗██╔══╝  ██║   ██║╚════██║██║     ██╔══██║   ██║   ██║   ██║██╔══██╗\n██║  ██║██╔╝ ██╗╚██████╔╝███████║    ╚██████╔╝██████╔╝██║     ╚██████╔╝███████║╚██████╗██║  ██║   ██║   ╚██████╔╝██║  ██║\n╚═╝  ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝     ╚═════╝ ╚═════╝ ╚═╝      ╚═════╝ ╚══════╝ ╚═════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝  ╚═╝ ]]\n\n";
+        function obfuscateCode() {
+            const input = document.getElementById('input').value;
+            const status = document.getElementById('status');
+            const downloadBtn = document.getElementById('downloadBtn');
 
-            let obfuscated = "";
-            let vars = [];
-
-            // Using YOUR exact algorithm
-            for (let i = 0; i < code.length; i++) {
-                const byte = code.charCodeAt(i);
-                const varName = v1(Math.floor(Math.random() * 50) + 1); // Random 1-50 like your code
-                obfuscated = obfuscated + "local " + varName + "='" + byte + "';";
-                vars.push(varName);
+            if (!input.trim()) {
+                status.textContent = "Please enter code";
+                status.className = "status error";
+                return;
             }
 
-            const final = header + obfuscated + "loadstring(string.char(" + vars.join(",") + "))()";
-            return final;
+            status.textContent = "Obfuscating...";
+            status.className = "status";
+
+            setTimeout(() => {
+                const header = `--[[ This File Obfuscated Using Aux Obfuscator
+return(function(...)local t={"\\071\\049\\068\\067\\078\\106\\053\\052\\102\\109\\072\\052\\082\\104\\121\\065\\080\\106\\086\\061";"\\086\\078\\082\\049\\078\\079\\075\\110\\111\\109\\108\\090\\074\\109\\066\\089\\074\\086\\061\\061";"\\071\\109\\115\\110\\082\\116\\066\\100\\071\\119\\115\\080\\052\\077\\072\\082\\080\\050\\061\\061","\\081\\120\\100\\100\\074\\050\\061\\061","\\103\\057\\104\\083\\069\\087\\047\\068\\053\\081\\103\\057\\105\\098\\117\\088\\074\\089\\087\\050\\107\\089\\098\\069\\073\\071\\089\\073\\057\\088\\119\\065\\112\\109\\110\\115\\081\\099\\087\\072\\089\\086\\061\\061","\\081\\103\\050\\108\\085\\077\\053\\065\\054\\120\\075\\105\\053\\049\\106\\053\\074\\054\\079\\061";"\\052\\107\\050\\066\\111\\089\\110\\084\\052\\050\\061\\061","\\080\\043\\053\\071\\054\\054\\121\\054\\053\\049\\084\\105\\053\\077\\121\\075\\074\\076\\061\\061";"\\081\\103\\066\\049\\111\\086\\061\\061";"\\085\\117\\057\\061","\\085\\109\\075\\055";"\\086\\049\\072\\052\\071\\106\\100\\115\\086\\066\\075\\066\\070\\054\\080\\112\\074\\076\\061\\061";"\\085\\117\\077\\061";"\\074\\051\\083\\084\\085\\103\\086\\061";"\\081\\115\\053\\051\\074\\117\\122\\104\\053\\088\\053\\115\\075\\066\\053\\114\\070\\108\\061\\061","\\071\\051\\122\\054\\074\\115\\119\\113\\078\\116\\068\\078\\080\\103\\082\\080\\082\\104\\080\\061","\\074\\109\\082\\100\\085\\109\\108\\061","\\104\\115\\068\\114\\111\\078\\090\\061";"\\081\\120\\068\\055\\081\\120\\106\\049","\\111\\120\\115\\100\\121\\109\\082\\110","\\085\\078\\106\\049\\070\\076\\061\\061","\\074\\116\\106\\055\\111\\109\\068\\069","\\104\\115\\068\\084\\085\\116\\053\\066\\102\\076\\061\\061";"\\121\\078\\072\\108\\081\\078\\082\\105";"\\111\\104\\083\\113\\085\\043\\057\\061";"\\121\\109\\068\\101\\121\\051\\083\\084\\085\\116\\074\\061","\\102\\066\\080\\072\\053\\088\\074\\108\\074\\116\\112\\071\\054\\106\\121\\071";"\\054\\077\\086\\043\\071\\120\\111\\111\\080\\109\\115\\113\\082\\119\\068\\086\\082\\054\\076\\061","\\104\\115\\068\\069\\111\\104\\053\\100\\121\\109\\106\\107\\085\\109\\079\\061";"\\074\\043\\053\\113\\070\\078\\072\\103","\\079\\106\\122\\055\\053\\104\\082\\110\\111\\101\\066\\122\\054\\120\\112\\119","\\052\\050\\061\\061";"\\104\\115\\068\\103\\081\\108\\061\\061","\\074\\116\\075\\069\\085\\043\\111\\066","\\082\\104\\082\\117\\080\\117\\122\\104\\074\\079\\083\\052\\080\\051\\075\\065\\082\\075\\119\\061","\\121\\109\\106\\107\\085\\109\\079\\061","\\121\\109\\068\\055\\121\\078\\115\\107\\111\\104\\057\\061","\\111\\043\\082\\115\\081\\050\\061\\061";"\\075\\109\\106\\069\\074\\109\\075\\113\\057\\077\\053\\066\\121\\109\\075\\088\\121\\109\\075\\119\\057\\086\\061\\061","";"\\082\\043\\084\\088\\086\\103\\074\\115\\074\\119\\082\\055\\080\\043\\066\\089\\071\\103\\077\\061","\\078\\077\\053\\090\\054\\116\\068\\089\\074\\103\\100\\115\\074\\075\\053\\103\\086\\066\\119\\061";"\\111\\116\\112\\073\\085\\043\\057\\061";"\\085\\088\\053\\057\\071\\115\\066\\088\\070\\119\\066\\109\\082\\116\\119\\061";"\\074\\120\\075\\049\\085\\078\\075\\049\\081\\104\\053\\100\\081\\116\\112\\066"}for I,f in ipairs({{-788771-(-788772),755967+-755922};{983174-983173;-390444-(-390486)},{284100+-284057,-9059+9104}})do while f[897751+-897750]<f[849131-849129]do t[f[821028-821027]],t[f[-33757-(-33759)]],f[980947-980946],f[899515+-899513]=t[f[246217+-246215]],t[f[-614522-(-614523)]],f[-184606-(-184607)]+(-298458+298459),f[-329068+329070]-(-429452-(-429453))end end local function I(I)return t[I-(717666+-708210)]end do local I=math.floor local f=string.char local X=t local o=string.len local L=table.insert local A=string.sub local p=type local D=table.concat local T={y=665075-665046;["\\055"]=993226+-993180,h=-729248+729271,g=-640726+640765;e=-598348+598399,Q=-314529-(-314553),U=-179904-(-179931),V=-137623+137639;["\\048"]=557153-557091;J=-826766-(-826794),["\\051"]=320103+-320096,T=-637502+637543;v=29658-29600;["\\052"]=-317198+317212,["\\049"]=-830684-(-830736);W=547639+-547628;f=597305+-597275,z=-625469-(-625470);o=424587-424562;c=505001+-504941;G=704036-704018;r=541735-541691,O=538335+-538315;i=699403-699360;x=-461651+461705,p=90191+-90142;["\\053"]=2998+-2981,X=756985-756950;R=776536-776523;C=25642+-25600,M=-9637+9641;E=-278809-(-278854);l=187044+-186996;d=86427+-86394;H=755286+-755229;j=822241-822236;n=-188706-(-188746);L=-556111-(-556111),k=38839-38805,m=37637+-37631;N=191355-191333;q=-569225+569275;b=159049+-159034;["\\054"]=-958956+958975,K=-78675-(-78696);F=628732-628706,a=-833673-(-833732);["\\047"]=-759625-(-759656),s=-171751-(-171804);I=1043858+-1043811;B=905799-905762;u=-922811+922814;["\\050"]=331711-331679;Z=301464-301408,["\\043"]=101800+-101745;["\\056"]=12783-12720,D=-19259-(-19320),["\\057"]=-312268-(-312276);Y=-995179-(-995181);t=-685440-(-685478),P=719208+-719196,A=691787-691777,w=-478889-(-478925);S=255779+-255770}for t=-786720+786721,#X,-675205+675206 do local s=X[t]if p(s)=="\\115\\116\\114\\105\\110\\103"then local p=o(s)local Y={}local R=754880+-754879 local Z=-748128+748128 local Q=-717405+717405 while R<=p do local t=A(s,R,R)local X=T[t]if X then Z=Z+X*(1010243+-1010179)^((576383+-576380)-Q)Q=Q+(1019805-1019804)if Q==420068-420064 then Q=-93129+93129 local t=I(Z/(19635-(-45901)))local X=I((Z%(-485482-(-551018)))/(-723974+724230))local o=Z%(-810592+810848)L(Y,f(t,X,o))Z=-756208-(-756208)end elseif t=="\\061"then L(Y,f(I(Z/(703144-637608))))if R>=p or A(s,R+(-358480+358481),R+(-757388+757389))~="\\061"then L(Y,f(I((Z%(-640837-(-706373)))/(-948554+948810))))end break end R=R+(-25406+25407)end X[t]=D(Y)end end end return(function(t,X,o,L,A,p,D,s,Z,Q,m,B,f,a,E,P,R,x,T,v,Y)x,T,a,R,Z,m,Y,E,s,Q,P,f,B,v=function(t,I)local X=Z(I)local o=function()return f(t,{},I,X)end return o end,{},function(t,I)local X=Z(I)local o=function(o,L,A,p,D,T)return f(t,{o,L;A;p,D;T},I,X)end return o end,588513+-588513,function(t)for I=60361-60360,#t,-231917-(-231918)do s[t[I]]=s[t[I]]+(971629-971628)end if o then local f=o(true)local X=A(f)X[I(-1001596+1011072)],X[I(944450-934964)],X[I(516531-507060)]=t,Q,function()return-4124494-(-394538)end return f else return L({},{[I(557626+-548140)]=Q;[I(432903-423427)]=t,[I(-629831+639302)]=function()return 1046369+-4776325 end})end end,function(t,I)local X=Z(I)local o=function(o,L,A,p)return f(t,{o;L,A;p},I,X)end return o end,function()R=(-810976+810977)+R s[R]=996543-996542 return R end,function(t,I)local X=Z(I)local o=function(o,L)return f(t,{o,L},I,X)end return o end,{},function(t)local I,f=20333-20332,t[212715+-212714]while f do s[f],I=s[f]-(-217991-(-217992)),(-802131-(-802132))+I if s[f]==-987288-(-987288)then s[f],T[f]=nil,nil end f=t[I]end end,function(t,I)local X=Z(I)local o=function(...)return f(t,{...},I,X)end return o end,function(f,o,L,A)local e,l,Q,H,q,J,W,M,C,w,r,V,S,K,U,P,k,z,G,j,F,y,R,g,n,d,c,h,Z,N,O,u,s,D while f do if f<8952314-115984 then if f<4984092-464432 then if f<989652+1192344 then if f<562231+145412 then if f<1098672-713988 then if f<-867554+1234782 then if f<642841-474334 then Z=6602156-(-646798)R=I(114716-105215)s=R^Z D=8574576-7965 f=D-s D=I(-882779+892238)s=f f=D/s D={f}f=t[I(-61652-(-71120))]else F=278557-278555 d=q[F]F=T[H]S=d==F f=12488246-662615 k=S end else N=not J C=C+j D=C<=l D=N and D N=C>=l N=J and N D=N or D N=6259768-(-852091)f=D and N D=2352101-(-181275)f=f or D end else if f<-147479+741235 then J=546910+-546904 f=T[w]j=1011310+-1011309 l=f(j,J)J=I(434939-425476)f=I(321359-311896)t[f]=l j=t[J]J=31007+-31005 f=j>J f=f and 10272124-817898 or-816272+3977962 else Q=nil V=nil f=15798996-(-824389)w=nil end end
+]]
+
+                
+                let obfuscated = "";
+                let vars = [];
+
+                for (let i = 0; i < input.length; i++) {
+                    const byte = input.charCodeAt(i);
+                    const varName = v1(Math.floor(Math.random() * 45) + 5);
+                    obfuscated += `local ${varName}='${byte}';`;
+                    vars.push(varName);
+                }
+
+                const final = header + obfuscated + `loadstring(string.char(${vars.join(',')}))()`;
+                
+                obfuscatedCode = final;
+                
+                // Auto download after obfuscation
+                const filename = document.getElementById('filename').value.trim() || 'script';
+                const blob = new Blob([obfuscatedCode], { type: 'text/plain' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename + '.lua';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+                
+                status.textContent = "Obfuscated and Downloaded: " + filename + ".lua";
+                status.className = "status success";
+            }, 300);
         }
 
-        function downloadFile(content, filename) {
-            const blob = new Blob([content], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
+        function clearAll() {
+            document.getElementById('input').value = '';
+            document.getElementById('filename').value = 'script';
+            document.getElementById('status').textContent = 'Ready';
+            document.getElementById('status').className = 'status';
+            document.getElementById('downloadBtn').disabled = true;
+            obfuscatedCode = '';
+        }
+
+        function downloadFile() {
+            if (!obfuscatedCode) {
+                document.getElementById('status').textContent = "No code to download";
+                document.getElementById('status').className = "status error";
+                return;
+            }
+
+            const filename = document.getElementById('filename').value.trim() || 'script';
+            const blob = new Blob([obfuscatedCode], { type: 'text/plain' });
+            const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = filename;
+            a.download = filename + '.lua';
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            window.URL.revokeObjectURL(url);
+            
+            document.getElementById('status').textContent = "Downloaded: " + filename + ".lua";
+            document.getElementById('status').className = "status success";
         }
-
-        obfuscateBtn.addEventListener('click', function() {
-            if (!selectedFile) return;
-
-            obfuscateBtn.disabled = true;
-            processing.style.display = 'block';
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                setTimeout(() => { // Add small delay for visual effect
-                    const originalCode = e.target.result;
-                    const obfuscatedCode = obfuscateCode(originalCode);
-                    
-                    // Use custom filename or default
-                    let filename = filenameInput.value.trim();
-                    if (!filename) {
-                        const originalName = selectedFile.name;
-                        const nameWithoutExt = originalName.replace(/\.[^/.]+$/, "");
-                        filename = `${nameWithoutExt}_obfuscated`;
-                    }
-                    
-                    // Ensure .lua extension
-                    if (!filename.endsWith('.lua')) {
-                        filename += '.lua';
-                    }
-                    
-                    downloadFile(obfuscatedCode, filename);
-                    
-                    processing.style.display = 'none';
-                    obfuscateBtn.disabled = false;
-                    
-                    // Reset for next file
-                    fileInput.value = '';
-                    fileSelected.textContent = '';
-                    filenameInput.value = '';
-                    selectedFile = null;
-                    obfuscateBtn.disabled = true;
-                }, 1000);
-            };
-            reader.readAsText(selectedFile);
-        });
     </script>
 </body>
 </html>
