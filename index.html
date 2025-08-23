@@ -293,9 +293,9 @@ game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></text
             }
 
             const localDeclaration = renamedVars.length > 0 ? "local " + renamedVars.join(", ") : "";
-            const assignments = assignmentLines.length > 0 ? "\n" + assignmentLines.join(" ") : "";
+            const assignments = assignmentLines.length > 0 ? " " + assignmentLines.join(" ") : "";
             
-            return localDeclaration + assignments + "\n" + finalCode;
+            return localDeclaration + assignments + " " + finalCode;
         }
 
         function processScript(code) {
@@ -307,32 +307,7 @@ game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></text
             const randomByteName = generateRandomName();
             const randomNewByteName = generateRandomName();
 
-            const decodeFunction = `local function ${randomIsValidCharName}(${randomByteName})
-    return (${randomByteName} >= 48 and ${randomByteName} <= 57) or (${randomByteName} >= 65 and ${randomByteName} <= 90) or (${randomByteName} >= 97 and ${randomByteName} <= 122)
-end
-
-local function ${randomDecryptName}(${randomCodeName}, ${randomOffsetName})
-    local ${randomResultName} = {}
-    for i = 1, #${randomCodeName} do
-        local ${randomByteName} = ${randomCodeName}:byte(i)
-        if ${randomIsValidCharName}(${randomByteName}) then
-            local ${randomNewByteName}
-            if ${randomByteName} >= 48 and ${randomByteName} <= 57 then
-                ${randomNewByteName} = ((${randomByteName} - 48 - ${randomOffsetName} + 10) % 10) + 48
-            elseif ${randomByteName} >= 65 and ${randomByteName} <= 90 then
-                ${randomNewByteName} = ((${randomByteName} - 65 - ${randomOffsetName} + 26) % 26) + 65
-            elseif ${randomByteName} >= 97 and ${randomByteName} <= 122 then
-                ${randomNewByteName} = ((${randomByteName} - 97 - ${randomOffsetName} + 26) % 26) + 97
-            end
-            table.insert(${randomResultName}, string.char(${randomNewByteName}))
-        else
-            table.insert(${randomResultName}, string.char(${randomByteName}))
-        end
-    end
-    return table.concat(${randomResultName})
-end
-
-`;
+            const decodeFunction = `local function ${randomIsValidCharName}(${randomByteName}) return (${randomByteName} >= 48 and ${randomByteName} <= 57) or (${randomByteName} >= 65 and ${randomByteName} <= 90) or (${randomByteName} >= 97 and ${randomByteName} <= 122) end local function ${randomDecryptName}(${randomCodeName}, ${randomOffsetName}) local ${randomResultName} = {} for i = 1, #${randomCodeName} do local ${randomByteName} = ${randomCodeName}:byte(i) if ${randomIsValidCharName}(${randomByteName}) then local ${randomNewByteName} if ${randomByteName} >= 48 and ${randomByteName} <= 57 then ${randomNewByteName} = ((${randomByteName} - 48 - ${randomOffsetName} + 10) % 10) + 48 elseif ${randomByteName} >= 65 and ${randomByteName} <= 90 then ${randomNewByteName} = ((${randomByteName} - 65 - ${randomOffsetName} + 26) % 26) + 65 elseif ${randomByteName} >= 97 and ${randomByteName} <= 122 then ${randomNewByteName} = ((${randomByteName} - 97 - ${randomOffsetName} + 26) % 26) + 97 end table.insert(${randomResultName}, string.char(${randomNewByteName})) else table.insert(${randomResultName}, string.char(${randomByteName})) end end return table.concat(${randomResultName}) end `;
 
             // First apply variable renaming
             code = processVariableRenaming(code);
@@ -391,7 +366,7 @@ end
             return codeTypes[randomKey]();
         }
 
-        function generateGarbage(blocks, sep = "\n") {
+        function generateGarbage(blocks, sep = " ") {
             const garbageCode = [];
             for (let i = 0; i < blocks; i++) {
                 const code = generateRandomCode();
@@ -410,10 +385,10 @@ end
                 throw new Error("garbage_blocks must be a number");
             }
             
-            const prefixGarbage = generateGarbage(garbageBlocks);
-            const suffixGarbage = generateGarbage(garbageBlocks);
+            const prefixGarbage = generateGarbage(garbageBlocks, " ");
+            const suffixGarbage = generateGarbage(garbageBlocks, " ");
             
-            return prefixGarbage + "\n" + code + "\n" + suffixGarbage;
+            return prefixGarbage + " " + code + " " + suffixGarbage;
         }
 
         function addPadding(content) {
