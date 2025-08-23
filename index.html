@@ -278,24 +278,245 @@ game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></text
             const { obfuscatedCode: varObfuscatedCode } = obfuscateLocalVariables(code);
             let finalCode = obfuscateFunctions(varObfuscatedCode);
 
-            // Handle built-in functions
+            // Handle built-in functions - be more careful with replacements
             for (const functionName of luaFunctions) {
-                if (code.includes(functionName)) {
+                if (code.includes(functionName + "(")) {
                     if (!varencNames[functionName]) {
                         const newName = generateRandomName();
                         varencNames[functionName] = newName;
                         renamedVars.push(newName);
-                        assignmentLines.push(newName + " = " + functionName + ";");
+                        assignmentLines.push(newName + "=" + functionName);
                     }
+                    // Only replace function calls, not partial matches
                     const regex = new RegExp(functionName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\(', 'g');
                     finalCode = finalCode.replace(regex, varencNames[functionName] + "(");
                 }
             }
 
-            const localDeclaration = renamedVars.length > 0 ? "local " + renamedVars.join(", ") : "";
+            const localDeclaration = renamedVars.length > 0 ? "local " + renamedVars.join(",") : "";
             const assignments = assignmentLines.length > 0 ? " " + assignmentLines.join(" ") : "";
             
             return localDeclaration + assignments + " " + finalCode;
+        }
+
+        // Compressor functions
+        const LUA_KEYWORDS = [
+            "and", "break", "do", "else", "elseif", "end", "false", "for", "function",
+            "goto", "if", "in", "local", "nil", "not", "or", "repeat", "return",
+            "then", "true", "until", "while"
+        ];
+
+        const KW_PLACEHOLDER_PRE = "@@KW_";
+        const KW_PLACEHOLDER_POST = "_KW@@";
+        const STR_PLACEHOLDER_PRE = "@@S_";
+        const STR_PLACEHOLDER_POST = "_S@@";
+
+        function processCompressor(code) {
+            if (typeof code !== "string") {
+                throw new Error("Input code must be a string.");
+            }
+            if (code.length < 10 || /^[\s\d\p{P}]*$/u.test(code)) {
+                return code.trim() || "";
+            }
+
+            let strings = {};
+            let stringCount = 0;
+            let keywordsMap = {};
+
+            function preserveStrings(c) {
+                // Long strings
+                c = c.replace(/\[(=*)\[([\s\S]*?)\]\1\]/g, function(match, equals, str) {
+                    stringCount++;
+                    const key = STR_PLACEHOLDER_PRE + stringCount + STR_PLACEHOLDER_POST;
+                    strings[key] = "[" + equals + "[" + str + "]" + equals + "]";
+                    return key;
+                });
+                
+                // Double quoted strings
+                c = c.replace(/"((?:\\.|[^"\\])*)"/g, function(match, str) {
+                    if (!str.includes("\\") && str.includes(STR_PLACEHOLDER_PRE)) {
+                        return '"' + str + '"';
+                    }
+                    stringCount++;
+                    const key = STR_PLACEHOLDER_PRE + stringCount + STR_PLACEHOLDER_POST;
+                    strings[key] = '"' + str + '"';
+                    return key;
+                });
+                
+                // Single quoted strings
+                c = c.replace(/'((?:\\.|[^'\\])*)'/g, function(match, str) {
+                    if (!str.includes("\\") && str.includes(STR_PLACEHOLDER_PRE)) {
+                        return "'" + str + "'";
+                    }
+                    stringCount++;
+                    const key = STR_PLACEHOLDER_PRE + stringCount + STR_PLACEHOLDER_POST;
+                    strings[key] = match;
+                    return key;
+                });
+                
+                return c;
+            }
+
+            function preserveKeywords(c) {
+                for (const keyword of LUA_KEYWORDS) {
+                    const placeholder = KW_PLACEHOLDER_PRE + keyword + KW_PLACEHOLDER_POST;
+                    keywordsMap[placeholder] = keyword;
+                    
+                    const regex1 = new RegExp("([^\\w_])(" + keyword + ")([^\\w_])", "g");
+                    const regex2 = new RegExp("^(" + keyword + ")([^\\w_])");
+                    const regex3 = new RegExp("([^\\w_])(" + keyword + ")$");
+                    const regex4 = new RegExp("^(" + keyword + ")$");
+                    
+                    c = c.replace(regex1, "$1" + placeholder + "$3");
+                    c = c.replace(regex2, placeholder + "$2");
+                    c = c.replace(regex3, "$1" + placeholder);
+                    c = c.replace(regex4, placeholder);
+                }
+                return c;
+            }
+
+            function restoreKeywords(c) {
+                for (const [placeholder, keyword] of Object.entries(keywordsMap)) {
+                    c = c.replace(new RegExp(placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), keyword);
+                }
+                return c;
+            }
+
+            function restoreStrings(c) {
+                for (let i = stringCount; i >= 1; i--) {
+                    const key = STR_PLACEHOLDER_PRE + i + STR_PLACEHOLDER_POST;
+                    if (strings[key]) {
+                        c = c.replace(new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), strings[key]);
+                    }
+                }
+                return c;
+            }
+
+            code = preserveStrings(code);
+            code = preserveKeywords(code);
+
+            // Remove comments
+            code = code.replace(/--\[\[[\s\S]*?\]\]/g, "");
+            code = code.replace(/--[^\n]*/g, "");
+
+            // Compress whitespace
+            code = code.replace(/[\n\r]+/g, " ");
+            code = code.replace(/\s+/g, " ");
+
+            // Compress operators
+            code = code.replace(/\s*\.\.\s*/g, "..");
+            code = code.replace(/\s*([+\-*/%\\^#<>~=,;:(){}[\]])\s*/g, "$1");
+            code = code.replace(/\s*\.\s*/g, ".");
+            code = code.replace(/\.\./g, "..");
+
+            code = code.trim();
+
+            code = restoreKeywords(code);
+            code = restoreStrings(code);
+
+            return code;
+        }
+
+        // Opaque Predicate Injector functions
+        function generatePredicates() {
+            const predicates = [
+                function() {
+                    const n = Math.floor(Math.random() * 91) + 10;
+                    return `if (${n} % 1 == 0 and ${n} >= ${n}) then `;
+                },
+                function() {
+                    const x = Math.floor(Math.random() * 10) + 1;
+                    return `if (${x} % ${x} == 0) then `;
+                },
+                function() {
+                    const angle = Math.floor(Math.random() * 361);
+                    return `if (math.sin(${angle})^2 + math.cos(${angle})^2 >= 0.99999) then `;
+                },
+                function() {
+                    const hex = Math.floor(Math.random() * 9000) + 1000;
+                    return `if (select(2, pcall(function() return tonumber('${hex.toString(16)}', 16) end)) ~= nil) then `;
+                },
+                function() {
+                    const size = Math.floor(Math.random() * 4) + 2;
+                    const array = "1,".repeat(size - 1) + "1";
+                    return `if (#{${array}} == ${size}) then `;
+                },
+                function() {
+                    const a = Math.floor(Math.random() * 10) + 1;
+                    const b = Math.floor(Math.random() * 10) + 11;
+                    return `if ((${a} < ${b}) == not (${a} >= ${b})) then `;
+                }
+            ];
+            return predicates[Math.floor(Math.random() * predicates.length)]();
+        }
+
+        function isInjectSafe(statement) {
+            if (/^\s*[{}]\s*$/.test(statement) ||
+                /^\s*$/.test(statement) ||
+                !statement.includes(";")) {
+                return false;
+            }
+
+            const unsafePatterns = [
+                /^\s*for\s+/,
+                /^\s*while\s+/,
+                /^\s*if\s+/,
+                /^\s*repeat\s+/,
+                /^\s*until\s+/,
+                /^\s*function\s+/,
+                /^\s*local\s+function/,
+                /^\s*do\s+/
+            ];
+
+            for (const pattern of unsafePatterns) {
+                if (pattern.test(statement)) {
+                    return false;
+                }
+            }
+
+            if (/^\s*if\s+.+\s+then\s+.+\s+end\s*;?$/.test(statement)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        function injectPredicates(block) {
+            if (/\s*end\s*;?$/.test(block) || /^\s*return/.test(block)) {
+                return block;
+            } else {
+                const predicate = generatePredicates();
+                return predicate + block + " end ";
+            }
+        }
+
+        function processOpaquePredicates(code) {
+            if (typeof code !== "string") {
+                throw new Error("Input must be a string");
+            }
+
+            try {
+                let result = code.replace(/([ \t]*)([^\n;]*;)/g, function(match, ws, statement) {
+                    if (isInjectSafe(statement)) {
+                        return ws + injectPredicates(statement);
+                    } else {
+                        return ws + statement;
+                    }
+                });
+
+                result = result.replace(/([ \t]*)(return\s+[^\n;]+;)/g, function(match, ws, returnStmt) {
+                    return ws + returnStmt;
+                });
+
+                return result;
+            } catch (error) {
+                throw new Error("Failed to process code: " + error.message);
+            }
+        }
+
+        // Wrapper function
+        function processWrapper(code) {
+            return `return (function(...) ${code} end)(...)`;
         }
 
         function processScript(code) {
@@ -309,7 +530,16 @@ game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></text
 
             const decodeFunction = `local function ${randomIsValidCharName}(${randomByteName}) return (${randomByteName} >= 48 and ${randomByteName} <= 57) or (${randomByteName} >= 65 and ${randomByteName} <= 90) or (${randomByteName} >= 97 and ${randomByteName} <= 122) end local function ${randomDecryptName}(${randomCodeName}, ${randomOffsetName}) local ${randomResultName} = {} for i = 1, #${randomCodeName} do local ${randomByteName} = ${randomCodeName}:byte(i) if ${randomIsValidCharName}(${randomByteName}) then local ${randomNewByteName} if ${randomByteName} >= 48 and ${randomByteName} <= 57 then ${randomNewByteName} = ((${randomByteName} - 48 - ${randomOffsetName} + 10) % 10) + 48 elseif ${randomByteName} >= 65 and ${randomByteName} <= 90 then ${randomNewByteName} = ((${randomByteName} - 65 - ${randomOffsetName} + 26) % 26) + 65 elseif ${randomByteName} >= 97 and ${randomByteName} <= 122 then ${randomNewByteName} = ((${randomByteName} - 97 - ${randomOffsetName} + 26) % 26) + 97 end table.insert(${randomResultName}, string.char(${randomNewByteName})) else table.insert(${randomResultName}, string.char(${randomByteName})) end end return table.concat(${randomResultName}) end `;
 
-            // First apply variable renaming
+            // First apply compressor to minify the code
+            code = processCompressor(code);
+            
+            // Then apply opaque predicates
+            code = processOpaquePredicates(code);
+            
+            // Then apply control flow obfuscation
+            code = processControlFlow(code);
+            
+            // Then apply variable renaming
             code = processVariableRenaming(code);
 
             // Then process string literals
@@ -319,7 +549,10 @@ game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></text
                 return `${randomDecryptName}(${quote}${encodedStr}${quote}, ${offset})`;
             });
 
-            return decodeFunction + code;
+            // Finally wrap the entire code
+            const wrappedCode = processWrapper(decodeFunction + code);
+
+            return wrappedCode;
         }
 
         // Garbage Code Inserter functions
@@ -391,9 +624,68 @@ game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></text
             return prefixGarbage + " " + code + " " + suffixGarbage;
         }
 
+        // Control Flow Obfuscator functions
+        function controlFlowObfuscate(code, n = null, a = null, depth = 0, depthValues = []) {
+            n = n || Math.floor(Math.random() * 7000);
+            a = n;
+            depthValues.push({n, a});
+
+            const operators = [">", "<", "=="];
+            const whileOperator = operators[Math.floor(Math.random() * 3)];
+            
+            const step = Math.floor(Math.random() * 990) + 10;
+            const maxIterations = 3;
+            
+            if (whileOperator === "<") {
+                a = n + (step * maxIterations);
+            } else if (whileOperator === ">") {
+                a = n - (step * maxIterations);
+                if (a < 0) a = 0;
+            } else if (whileOperator === "==") {
+                a = n;
+            }
+
+            const threshold = (n + step);
+            
+            let src = depth === 0 ? `local thing = ${n} local thing2 = ${a} local counter = 0 local threshold = ${threshold} ` : "";
+            
+            src += `while thing ${whileOperator} thing2 and counter < ${maxIterations} do `;
+            src += `thing = thing + ${step} `;
+            src += `counter = counter + 1 `;
+            src += `if thing < threshold then `;
+
+            const spoofLines = [
+                `local temp = ${Math.floor(Math.random() * 100)} temp = temp * 2`,
+                `local str = 'dummy' str = str .. str`,
+                `local x = ${Math.floor(Math.random() * 50)} x = x - ${Math.floor(Math.random() * 10)}`,
+                `local tbl = {1, 2, 3} table.sort(tbl, function(a, b) return a > b end)`
+            ];
+            const spoof = spoofLines[Math.floor(Math.random() * spoofLines.length)];
+
+            if (Array.isArray(code) && code.length === 1) {
+                src += `${spoof} `;
+                src += `else ${code[0]} break `;
+            } else {
+                src += `${spoof} `;
+                src += `else ${code} break `;
+            }
+
+            src += `end end `;
+
+            if (Math.random() > 0.5) {
+                src += `local dummy = 1 dummy = dummy + ${Math.floor(Math.random() * 10)} `;
+            }
+
+            return src;
+        }
+
+        function processControlFlow(code) {
+            return controlFlowObfuscate(code);
+        }
+
         function addPadding(content) {
-            // Use garbage code inserter for better padding
-            const garbageBlocks = 50; // Number of garbage code blocks
+            // Much smaller padding for 50KB target
+            const garbageBlocks = 5; // Very small amount
             return processGarbageCode(content, garbageBlocks);
         }
 
@@ -415,8 +707,8 @@ game:GetService('Players').LocalPlayer.Character.Humanoid.WalkSpeed = 50"></text
                 try {
                     let obfuscatedCode = processScript(input);
                     
-                    // Add padding to reach approximately 1MB
-                    const targetSize = 1024 * 1024; // 1MB
+                    // Add padding to reach approximately 50KB
+                    const targetSize = 50 * 1024; // 50KB
                     while (obfuscatedCode.length < targetSize) {
                         obfuscatedCode = addPadding(obfuscatedCode);
                         if (obfuscatedCode.length > targetSize * 1.5) break; // Safety check
